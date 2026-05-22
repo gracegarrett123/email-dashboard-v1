@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Advertising Solutions Email Metrics Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh}
+header{background:#004b87;color:#fff;padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.25);position:sticky;top:0;z-index:100}
+.hd h1{font-size:1.15rem;font-weight:800;letter-spacing:-.01em}
+.hd p{font-size:.72rem;opacity:.7;margin-top:.1rem}
+.hd-meta{display:flex;align-items:center;gap:.75rem;font-size:.75rem;opacity:.8}
+.hd-badge{background:rgba(255,255,255,.18);border-radius:9999px;padding:.2rem .7rem;font-weight:700;font-size:.72rem}
+.brand-tabs{background:#003a6b;display:flex;gap:0;overflow-x:auto;scrollbar-width:none;border-bottom:3px solid #0064b8}
+.brand-tabs::-webkit-scrollbar{display:none}
+.brand-tab{padding:.75rem 1.4rem;font-size:.85rem;font-weight:700;color:rgba(255,255,255,.6);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-3px;transition:all .15s;border:none;background:none}
+.brand-tab:hover{color:rgba(255,255,255,.9)}
+.brand-tab.active{color:#fff;border-bottom-color:#38bdf8}
+main{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
+.brand-section{display:none}
+.brand-section.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
+.card{background:#fff;border-radius:.5rem;padding:1rem 1.25rem;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card-lbl{font-size:.68rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:.3rem}
+.card-val{font-size:1.4rem;font-weight:800;color:#0f172a;line-height:1.1}
+.card-sub{font-size:.7rem;color:#94a3b8;margin-top:.2rem}
+.card-trend{font-size:.72rem;font-weight:700;margin-top:.2rem}
+.up{color:#16a34a}.dn{color:#dc2626}.flat{color:#64748b}
+.sec-hdr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.sec-title{font-size:1rem;font-weight:800;color:#0f172a}
+.sec-sub{font-size:.75rem;color:#64748b}
+.tbl-wrap{background:#fff;border-radius:.5rem;border:1px solid #e2e8f0;overflow:auto;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:1.5rem}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+thead tr{background:#f8fafc;border-bottom:2px solid #e2e8f0}
+th{padding:.65rem 1rem;text-align:left;font-weight:700;color:#475569;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{background:#f1f5f9}
+th.num,td.num{text-align:right}
+td{padding:.7rem 1rem;border-bottom:1px solid #f1f5f9;color:#334155;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.cn{font-weight:700;color:#0f172a;max-width:180px;word-break:break-word;line-height:1.3}
+.subj{max-width:220px;line-height:1.35;font-size:.76rem;color:#475569}
+.chip{display:inline-block;padding:.18rem .5rem;border-radius:9999px;font-size:.67rem;font-weight:700;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.chip-webinar{background:#dbeafe;color:#1e40af}
+.chip-podcast{background:#fce7f3;color:#9d174d}
+.chip-gated{background:#f5f3ff;color:#6d28d9}
+.chip-hlr{background:#1e3a5f;color:#e0f0ff}
+.chip-icymi{background:#fef9c3;color:#854d0e}
+.chip-qt{background:#ecfdf5;color:#065f46}
+.chip-wod{background:#ecfdf5;color:#065f46}
+.rate{font-weight:700}
+.rate.hi{color:#16a34a}.rate.mid{color:#d97706}.rate.lo{color:#dc2626}
+.best-row td{background:#fefce8!important;border-left:3px solid #eab308}
+.na{color:#cbd5e1;font-style:italic}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem}
+@media(max-width:700px){.chart-grid{grid-template-columns:1fr}}
+.chart-card{background:#fff;border-radius:.5rem;border:1px solid #e2e8f0;padding:1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.chart-card h3{font-size:.82rem;font-weight:800;color:#0f172a;margin-bottom:1rem}
+.chart-wrap{position:relative;height:220px}
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem}
+.insight{background:#fff;border-radius:.5rem;border:1px solid #e2e8f0;padding:1.1rem 1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.05);border-left:4px solid #004b87}
+.insight-icon{font-size:1.3rem;margin-bottom:.4rem}
+.insight h4{font-size:.82rem;font-weight:800;color:#0f172a;margin-bottom:.3rem}
+.insight p{font-size:.77rem;color:#475569;line-height:1.5}
+.insight.warn{border-left-color:#f59e0b}
+.insight.good{border-left-color:#22c55e}
+.insight.info{border-left-color:#3b82f6}
+.lw-hdr{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;border-radius:.5rem;padding:1.1rem 1.5rem;margin-bottom:1.25rem}
+.lw-hdr h2{font-size:1rem;font-weight:800}
+.lw-hdr p{font-size:.75rem;opacity:.8;margin-top:.1rem}
+.best-cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+@media(max-width:700px){.best-cols{grid-template-columns:1fr}}
+.hl{background:#fffbeb}
+footer{text-align:center;padding:1.5rem;color:#94a3b8;font-size:.72rem;margin-top:.5rem}
+select.filter-sel{padding:.35rem .65rem;border-radius:.375rem;border:1px solid #e2e8f0;font-size:.78rem;background:#fff;color:#334155}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <h1>Advertising Solutions Email Metrics Dashboard</h1>
+    <p>Crain Communications &nbsp;·&nbsp; Sailthru Campaign Performance &nbsp;·&nbsp; Data: Jan 1 – May 23, 2026</p>
+  </div>
+  <div class="hd-meta">
+    <span class="hd-badge">6 Brands</span>
+    <span class="hd-badge">376 Campaigns</span>
+    <span id="hdDate"></span>
+  </div>
+</header>
+
+<nav class="brand-tabs">
+  <button class="brand-tab active" onclick="switchBrand('overview',this)">📊 Overview</button>
+  <button class="brand-tab" onclick="switchBrand('mh',this)">🏥 Modern Healthcare</button>
+  <button class="brand-tab" onclick="switchBrand('aa',this)">📰 Ad Age</button>
+  <button class="brand-tab" onclick="switchBrand('pi',this)">💼 Pensions &amp; Investments</button>
+  <button class="brand-tab" onclick="switchBrand('gw',this)">🔬 GenomeWeb</button>
+  <button class="brand-tab" onclick="switchBrand('ccb',this)">🌆 Crain's Chicago</button>
+  <button class="brand-tab" onclick="switchBrand('cdb',this)">🏙️ Crain's Detroit</button>
+</nav>
+
+<main>
+
+<!-- ═══ OVERVIEW ═══ -->
+<div class="brand-section active" id="sec-overview"></div>
+
+<!-- ═══ MH ═══ -->
+<div class="brand-section" id="sec-mh"></div>
+
+<!-- ═══ AA ═══ -->
+<div class="brand-section" id="sec-aa"></div>
+
+<!-- ═══ PI ═══ -->
+<div class="brand-section" id="sec-pi"></div>
+
+<!-- ═══ GW ═══ -->
+<div class="brand-section" id="sec-gw"></div>
+
+<!-- ═══ CCB ═══ -->
+<div class="brand-section" id="sec-ccb"></div>
+
+<!-- ═══ CDB ═══ -->
+<div class="brand-section" id="sec-cdb"></div>
+
+</main>
+<footer>Crain Communications · Ad Solutions · Sailthru Export Jan 1 – May 23, 2026 &nbsp;·&nbsp; Smartsheet: Ad Solutions MASTER Email Tracker &nbsp;·&nbsp; Last updated: <span id="footerDate"></span></footer>
+
+<script>
+/* ── Utilities ── */
+const now=new Date();
+document.getElementById('hdDate').textContent='As of '+now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+document.getElementById('footerDate').textContent=now.toLocaleString();
+
+function fN(n){return Number(n).toLocaleString();}
+function rateClass(r){return r>=6?'hi':r>=4?'mid':'lo';}
+function ctrClass(c){return c>=0.4?'hi':c>=0.2?'mid':'lo';}
+function ctorClass(c){return c>=7?'hi':c>=4?'mid':'lo';}
+function calcCtor(clicks,opens){return opens>0?+(clicks/opens*100).toFixed(2):0;}
+
+function typeChip(t){
+  const m={
+    Webinar:'chip-webinar',Podcast:'chip-podcast',GatedContent:'chip-gated',
+    HLR:'chip-hlr',ICYMI:'chip-icymi',QTVideo:'chip-qt',WOD:'chip-wod',
+    Whitepaper:'chip-gated',Intel:'chip-hlr',Supplement:'chip-hlr',
+    Roundtable:'chip-icymi',Custom:'chip-wod',Guide:'chip-wod',Event:'chip-icymi'
+  };
+  return `<span class="chip ${m[t]||'chip-webinar'}">${t}</span>`;
+}
+
+function buildBarChart(canvasId, labels, datasets, tooltipSuffix){
+  const blue='rgba(0,75,135,.8)',teal='rgba(0,150,180,.8)',amber='rgba(245,158,11,.8)',green='rgba(34,197,94,.8)';
+  const opts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#f1f5f9'},ticks:{color:'#64748b',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#64748b',font:{size:11}}}}};
+  const el=document.getElementById(canvasId);
+  if(!el) return;
+  if(datasets.length===1){
+    new Chart(el,{type:'bar',data:{labels,datasets:[{data:datasets[0].data,backgroundColor:[blue,teal,amber],borderRadius:6,borderSkipped:false}]},options:{...opts,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>' '+v.raw.toLocaleString()+' '+tooltipSuffix}}}}});
+  } else {
+    new Chart(el,{type:'bar',data:{labels,datasets:datasets.map((d,i)=>({label:d.label,data:d.data,backgroundColor:i===0?blue:green,borderRadius:6,borderSkipped:false}))},options:{...opts,plugins:{legend:{display:true,labels:{color:'#475569',font:{size:11}}},tooltip:{callbacks:{label:v=>' '+v.dataset.label+': '+v.raw+'%'}}}}});
+  }
+}
+
+function buildCampaignTable(tbodyId, data, cols){
+  const tbody=document.getElementById(tbodyId);
+  if(!tbody) return;
+  tbody.innerHTML=data.map(c=>{
+    const dateStr=new Date(c.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const name=c.name?(c.name.replace('CustomMedia-','').replace(/-202\d+$/,'')):c.client;
+    const subj=c.subject||'';
+    const sent=c.sent||0;
+    const opens=c.real_opens||0;
+    const or_pct=c.open_rate||c.or_pct||0;
+    const clicks=c.unique_real_clicks||0;
+    const ctr=c.ctr||0;
+    return `<tr>
+      <td class="cn">${name}</td>
+      <td class="subj">${subj}</td>
+      <td style="white-space:nowrap">${dateStr}</td>
+      <td>${typeChip(c.type)}</td>
+      <td class="num">${fN(sent)}</td>
+      <td class="num">${fN(opens)}</td>
+      <td class="num"><span class="rate ${rateClass(or_pct)}">${or_pct}%</span></td>
+      <td class="num">${fN(clicks)}</td>
+      <td class="num"><span class="rate ${ctrClass(ctr)}">${ctr}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function sortGenericTable(tbodyId, col){
+  const tbody=document.getElementById(tbodyId);
+  if(!tbody) return;
+  const rows=[...tbody.querySelectorAll('tr')];
+  const dir=tbody.dataset.sortDir==='asc'?'desc':'asc';
+  tbody.dataset.sortDir=dir;
+  rows.sort((a,b)=>{
+    const av=a.cells[col]?.textContent?.replace(/[%,$\s]/g,'').trim()||'';
+    const bv=b.cells[col]?.textContent?.replace(/[%,$\s]/g,'').trim()||'';
+    const an=parseFloat(av.replace(/,/g,'')),bn=parseFloat(bv.replace(/,/g,''));
+    if(!isNaN(an)&&!isNaN(bn)) return dir==='asc'?an-bn:bn-an;
+    return dir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+}
+
+function buildBestPerformers(orId, ctrId, data){
+  const medals=['🥇','🥈','🥉','4','5'];
+  const sorted_or=[...data].sort((a,b)=>(b.open_rate||b.or_pct||0)-(a.open_rate||a.or_pct||0)).slice(0,5);
+  const sorted_ctr=[...data].sort((a,b)=>(b.ctr||0)-(a.ctr||0)).slice(0,5);
+  const orEl=document.getElementById(orId);
+  if(orEl) orEl.innerHTML=sorted_or.map((c,i)=>`<tr${i<3?' class="best-row"':''}>
+    <td>${medals[i]}</td>
+    <td class="cn">${c.name?(c.name.replace('CustomMedia-','').replace(/-202\d+$/,'')):c.client}</td>
+    <td class="subj">${c.subject||''}</td>
+    <td style="white-space:nowrap">${new Date(c.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td>
+    <td class="num">${fN(c.sent)}</td>
+    <td class="num">${fN(c.real_opens)}</td>
+    <td class="num"><span class="rate hi">${c.open_rate||c.or_pct}%</span></td>
+    <td class="num">${c.ctr}%</td>
+  </tr>`).join('');
+  const ctrEl=document.getElementById(ctrId);
+  if(ctrEl) ctrEl.innerHTML=sorted_ctr.map((c,i)=>`<tr${i<3?' class="best-row"':''}>
+    <td>${medals[i]}</td>
+    <td class="cn">${c.name?(c.name.replace('CustomMedia-','').replace(/-202\d+$/,'')):c.client}</td>
+    <td class="subj">${c.subject||''}</td>
+    <td style="white-space:nowrap">${new Date(c.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td>
+    <td class="num">${fN(c.sent)}</td>
+    <td class="num">${fN(c.unique_real_clicks)}</td>
+    <td class="num"><span class="rate hi">${c.ctr}%</span></td>
+    <td class="num">${c.open_rate||c.or_pct}%</td>
+  </tr>`).join('');
+}
+
+/* ── Monthly summary table builder ── */
+function buildMonthlyTable(tbodyId, rows){
+  const tbody=document.getElementById(tbodyId);
+  if(!tbody) return;
+  const hasConvs=rows.length>0 && rows[0].leads!==undefined;
+  tbody.innerHTML=rows.map((r,i)=>`<tr${i===rows.length-1?' class="hl"':''}>
+    <td style="font-weight:800">${r.month}${i===rows.length-1?' <small style="font-weight:400;color:#94a3b8">(partial)</small>':''}</td>
+    <td class="num">${r.n}</td>
+    <td class="num">${fN(r.sent)}</td>
+    <td class="num">${fN(r.opens)}</td>
+    <td class="num"><span class="rate ${rateClass(r.or)}">${r.or}%</span></td>
+    <td class="num">${fN(r.clicks)}</td>
+    <td class="num"><span class="rate ${ctrClass(r.ctr/100)}">${r.ctr}%</span></td>
+    <td class="num">${i===0?'<span class="flat">—</span>':'<span class="'+(r.mom_or>=0?'up':'dn')+'">'+(r.mom_or>=0?'+':'')+r.mom_or+'pts</span>'}</td>
+    <td class="num">${i===0?'<span class="flat">—</span>':'<span class="'+(r.mom_ctr>=0?'up':'dn')+'">'+(r.mom_ctr>=0?'+':'')+r.mom_ctr+'pts</span>'}</td>
+    ${hasConvs?`<td class="num" style="color:#10b981;font-weight:700">${r.leads??'—'}</td><td class="num" style="color:#3b82f6;font-weight:700">${r.regs??'—'}</td>`:''}
+  </tr>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MH DATA
+═══════════════════════════════════════════════════════════ */
+const campaigns=[
+  {name:"CustomMedia-GatedContent-CHC-20260106 [A]",subject:"Struggling hospital margins? A data-backed path forward",date:"2026-01-06",type:"GatedContent",sent:4644,delivered:0,real_opens:287,open_rate:6.18,unique_real_clicks:29,ctr:0.624},
+  {name:"CustomMedia-GatedContent-CHC-20260106 [B]",subject:"White Paper: How hospitals are navigating margin pressure",date:"2026-01-06",type:"GatedContent",sent:4682,delivered:0,real_opens:354,open_rate:7.56,unique_real_clicks:36,ctr:0.769},
+  {name:"CustomMedia-GatedContent-Nordic-20250106",subject:"White Paper: A pragmatic AI roadmap for real-world impact",date:"2026-01-07",type:"GatedContent",sent:9924,delivered:0,real_opens:603,open_rate:6.08,unique_real_clicks:57,ctr:0.574},
+  {name:"CustomMedia-QTVideo-CityofHope-20260112",subject:"The future of cancer care access — a must-watch executive interview",date:"2026-01-12",type:"QTVideo",sent:15012,delivered:0,real_opens:966,open_rate:6.43,unique_real_clicks:46,ctr:0.306},
+  {name:"CustomMedia-GatedContent#2-Nordic-20250119",subject:"A leadership blueprint for ethical, effective AI in hospitals",date:"2026-01-19",type:"GatedContent",sent:9068,delivered:0,real_opens:562,open_rate:6.2,unique_real_clicks:43,ctr:0.474},
+  {name:"CustomMedia-GatedContent#2-CHC-20260120",subject:"White paper: A step-by-step guide to hospital recovery",date:"2026-01-20",type:"GatedContent",sent:8821,delivered:0,real_opens:607,open_rate:6.88,unique_real_clicks:36,ctr:0.408},
+  {name:"CustomMedia-GatedContent-PWC-20260121",subject:"White Paper: How AI is changing healthcare risk strategy",date:"2026-01-21",type:"GatedContent",sent:28763,delivered:0,real_opens:1733,open_rate:6.03,unique_real_clicks:174,ctr:0.605},
+  {name:"CustomMedia-ICYMI-January-20260125 [B]",subject:"ICYMI: What Healthcare Executives Are Watching, Reading & Listening To",date:"2026-01-25",type:"ICYMI",sent:25624,delivered:0,real_opens:1914,open_rate:7.47,unique_real_clicks:85,ctr:0.332},
+  {name:"CustomMedia-ICYMI-January-20260125 [A]",subject:"ICYMI: What Healthcare Executives Are Watching, Reading & Listening To",date:"2026-01-25",type:"ICYMI",sent:25899,delivered:0,real_opens:1869,open_rate:7.22,unique_real_clicks:60,ctr:0.232},
+  {name:"CustomMedia-QTVideo-CityofHope-20260126",subject:"Discover City of Hope’s strategy to detect cancer earlier—watch now",date:"2026-01-26",type:"QTVideo",sent:14654,delivered:0,real_opens:928,open_rate:6.33,unique_real_clicks:35,ctr:0.239},
+  {name:"CustomMedia-GatedContent-Optum-20260127",subject:"White paper: Reduce claim denials with AI and API integration",date:"2026-01-27",type:"GatedContent",sent:29897,delivered:0,real_opens:2002,open_rate:6.7,unique_real_clicks:129,ctr:0.431},
+  {name:"CustomMedia-GatedContent-AdvisoryBoard-20260128",subject:"White Paper: 12 things CEOs need to know heading into 2026",date:"2026-01-28",type:"GatedContent",sent:28316,delivered:0,real_opens:1840,open_rate:6.5,unique_real_clicks:183,ctr:0.646},
+  {name:"CustomMedia-HLR-January-20260130",subject:"Your Executive Briefing: Curated White Papers on Healthcare Strategy",date:"2026-02-01",type:"HLR",sent:72230,delivered:0,real_opens:5323,open_rate:7.37,unique_real_clicks:434,ctr:0.601},
+  {name:"CustomMedia-QTVideo-HeidiHealth-20260203",subject:"Quick Take: Making AI scribes more personalized",date:"2026-02-03",type:"QTVideo",sent:14760,delivered:0,real_opens:988,open_rate:6.69,unique_real_clicks:45,ctr:0.305},
+  {name:"CustomMedia-Podcast-Elevance-20260205",subject:"Podcast: How Elevance Health is implementing responsible, consumer-centered AI",date:"2026-02-05",type:"Podcast",sent:14022,delivered:0,real_opens:772,open_rate:5.51,unique_real_clicks:33,ctr:0.235},
+  {name:"CustomMedia-QTVideo-Premier-20260210",subject:"Quick Take: How collaboration is accelerating healthcare performance gains",date:"2026-02-10",type:"QTVideo",sent:14609,delivered:0,real_opens:942,open_rate:6.45,unique_real_clicks:30,ctr:0.205},
+  {name:"CustomMedia-Podcast-Honest-20260211",subject:"Podcast: AI and value-based care – Perspectives from Oracle and Honest Health",date:"2026-02-11",type:"Podcast",sent:14532,delivered:0,real_opens:909,open_rate:6.26,unique_real_clicks:46,ctr:0.317},
+  {name:"CustomMedia-ICYMI-February-20260215",subject:"ICYMI: What Healthcare Executives Are Watching, Reading & Listening To",date:"2026-02-15",type:"ICYMI",sent:55053,delivered:0,real_opens:4120,open_rate:7.48,unique_real_clicks:165,ctr:0.3},
+  {name:"CustomMedia-GatedContent-Waystar-20260218",subject:"How rev cycle leaders can prepare for OBBA's impact",date:"2026-02-18",type:"GatedContent",sent:29046,delivered:0,real_opens:1816,open_rate:6.25,unique_real_clicks:155,ctr:0.534},
+  {name:"CustomMedia-Webinar#1-Premier-20260223",subject:"Webinar: How University Hospitals achieved $8 million in annual supply savings",date:"2026-02-23",type:"Webinar",sent:13997,delivered:0,real_opens:848,open_rate:6.06,unique_real_clicks:32,ctr:0.229},
+  {name:"CustomMedia-Webinar#1-MedSpeed-20260224",subject:"Live webinar: How to reduce financial risk tied to health system logistics",date:"2026-02-24",type:"Webinar",sent:28712,delivered:0,real_opens:1737,open_rate:6.05,unique_real_clicks:68,ctr:0.237},
+  {name:"CustomMedia-GatedContent-Laudio-20260224",subject:"Case study: How one health system reduced turnover by 7%",date:"2026-02-24",type:"GatedContent",sent:12891,delivered:0,real_opens:744,open_rate:5.77,unique_real_clicks:45,ctr:0.349},
+  {name:"CustomMedia-HLR-March-20260301",subject:"Your Executive Briefing: Curated White Papers on Healthcare Strategy",date:"2026-03-01",type:"HLR",sent:72125,delivered:0,real_opens:4287,open_rate:5.94,unique_real_clicks:303,ctr:0.42},
+  {name:"CustomMedia-Webinar#2-Premier-20260303",subject:"Elevating supply chain from cost center to strategic lever - Insights from University Hospitals",date:"2026-03-03",type:"Webinar",sent:19844,delivered:0,real_opens:1327,open_rate:6.69,unique_real_clicks:79,ctr:0.398},
+  {name:"CustomMedia-Webinar#2-Medspeed-20260304",subject:"The $1M logistics risk many health systems overlook",date:"2026-03-04",type:"Webinar",sent:27722,delivered:0,real_opens:1835,open_rate:6.62,unique_real_clicks:41,ctr:0.148},
+  {name:"CustomMedia-Podcast-HeidiHealth-20260305",subject:"Podcast: Could AI Help Double Healthcare Capacity?",date:"2026-03-06",type:"Podcast",sent:14922,delivered:0,real_opens:778,open_rate:5.21,unique_real_clicks:22,ctr:0.147},
+  {name:"CustomMedia-Webinar#3-Premier-20260306",subject:"[REGISTER TODAY] Inside University Hospitals’ proven approach to supply chain savings",date:"2026-03-06",type:"Webinar",sent:72618,delivered:0,real_opens:4577,open_rate:6.3,unique_real_clicks:192,ctr:0.264},
+  {name:"CustomMedia-Webinar#3-MedSpeed-20260308",subject:"[REGISTER TODAY] The hidden operational cost of logistics errors in healthcare",date:"2026-03-08",type:"Webinar",sent:71463,delivered:0,real_opens:4287,open_rate:6.0,unique_real_clicks:168,ctr:0.235},
+  {name:"CustomMedia-Webinar#4-Premier-20260309",subject:"[LAST CHANCE] Inside University Hospitals’ proven approach to supply chain savings",date:"2026-03-09",type:"Webinar",sent:55627,delivered:0,real_opens:777,open_rate:1.4,unique_real_clicks:70,ctr:0.126},
+  {name:"CustomMedia-Webinar#4-Medspeed-20260310",subject:"Live Thursday: The hidden operational cost of logistics errors in healthcare",date:"2026-03-10",type:"Webinar",sent:58987,delivered:0,real_opens:1123,open_rate:1.9,unique_real_clicks:64,ctr:0.108},
+  {name:"CustomMedia-QTVideo-iRhythmTechnologies-20260311",subject:"Quick Take: Rethinking arrhythmia detection – Why proactive monitoring matters",date:"2026-03-11",type:"QTVideo",sent:14275,delivered:0,real_opens:829,open_rate:5.81,unique_real_clicks:61,ctr:0.427},
+  {name:"CustomMedia-GatedContent-Shields-20260317",subject:"New report: Outcomes and benchmarks from health system specialty pharmacies",date:"2026-03-17",type:"GatedContent",sent:11832,delivered:0,real_opens:703,open_rate:5.94,unique_real_clicks:41,ctr:0.347},
+  {name:"CustomMedia-GatedContent-Tecsys-20260318",subject:"Drug shortages are rising. Can your pharmacy see the risk?",date:"2026-03-18",type:"GatedContent",sent:26033,delivered:0,real_opens:1348,open_rate:5.18,unique_real_clicks:38,ctr:0.146},
+  {name:"CustomMedia-HLR-March2-20260322",subject:"Your Executive Briefing: Curated White Papers on Healthcare Strategy",date:"2026-03-22",type:"HLR",sent:71409,delivered:0,real_opens:4115,open_rate:5.76,unique_real_clicks:175,ctr:0.245},
+  {name:"CustomMedia-ICYMI-March-20260329",subject:"ICYMI: What Healthcare Executives Are Watching, Reading & Listening To",date:"2026-03-29",type:"ICYMI",sent:52123,delivered:0,real_opens:3360,open_rate:6.45,unique_real_clicks:152,ctr:0.292},
+  {name:"CustomMedia-WOD-Silk-20260331",subject:"Cloud data and AI infrastructure strategies for healthcare leaders",date:"2026-03-31",type:"WOD",sent:26037,delivered:0,real_opens:1134,open_rate:4.36,unique_real_clicks:27,ctr:0.104},
+  {name:"CustomMedia-GatedContent-Lumeris-20260402",subject:"White Paper: A step-by-step framework for evaluating AI in primary care",date:"2026-04-03",type:"GatedContent",sent:29865,delivered:0,real_opens:1386,open_rate:4.64,unique_real_clicks:90,ctr:0.301},
+  {name:"CustomMedia-GatedContent-WOD2-Silk-20260408",subject:"AI is moving faster than infrastructure. Here's what leaders are doing",date:"2026-04-08",type:"GatedContent",sent:25936,delivered:0,real_opens:1129,open_rate:4.35,unique_real_clicks:35,ctr:0.135},
+  {name:"CustomMedia-Podcast-Trane-20260409",subject:"Healthcare M&A: The hidden risks in infrastructure",date:"2026-04-09",type:"Podcast",sent:12885,delivered:0,real_opens:758,open_rate:5.88,unique_real_clicks:36,ctr:0.279},
+  {name:"CustomMedia-HLR-April-20260412",subject:"Your Executive Briefing: Curated White Papers on Healthcare Strategy",date:"2026-04-12",type:"HLR",sent:70591,delivered:0,real_opens:4236,open_rate:6.0,unique_real_clicks:184,ctr:0.261},
+  {name:"CustomMedia-Webinar-GenomewebCrossPromo-20260415",subject:"Roundtable Discussion: The Value of Integrating Genomic Testing Into Clinical Practice",date:"2026-04-15",type:"Webinar",sent:19905,delivered:0,real_opens:850,open_rate:4.27,unique_real_clicks:41,ctr:0.206},
+  {name:"CustomMedia-Webinar#1-Premier-20260422",subject:"How health systems are using collaboration to improve performance",date:"2026-04-22",type:"Webinar",sent:29739,delivered:0,real_opens:1289,open_rate:4.33,unique_real_clicks:70,ctr:0.235},
+  {name:"CustomMedia-Webinar#1-Lumeris-20260423",subject:"How Ochsner Health is transforming primary care with AI",date:"2026-04-23",type:"Webinar",sent:29722,delivered:0,real_opens:1391,open_rate:4.68,unique_real_clicks:124,ctr:0.417},
+  {name:"CustomMedia-ICYMI-April-20260426",subject:"ICYMI: What Healthcare Executives Are Watching, Reading & Listening To",date:"2026-04-26",type:"ICYMI",sent:70166,delivered:0,real_opens:3288,open_rate:4.69,unique_real_clicks:170,ctr:0.242},
+  {name:"CustomMedia-Podcast-Temple-20260427",subject:"Expanding lung transplant access: The systems behind the surgery",date:"2026-04-27",type:"Podcast",sent:9703,delivered:0,real_opens:656,open_rate:6.76,unique_real_clicks:63,ctr:0.649},
+  {name:"CustomMedia-GatedContent-HealthCatalyst-20260428",subject:"Turn ambulatory care into a strategic growth engine",date:"2026-04-28",type:"GatedContent",sent:24244,delivered:0,real_opens:1142,open_rate:4.71,unique_real_clicks:97,ctr:0.4},
+  {name:"CustomMedia-Podcast-CVS-20260429",subject:"Managing chronic disease: Pharmacy leaders on access, affordability and outcomes",date:"2026-04-29",type:"Podcast",sent:9774,delivered:0,real_opens:661,open_rate:6.76,unique_real_clicks:50,ctr:0.512},
+  {name:"CustomMedia-Webinar#2-Premier-20260501",subject:"Collaboration in action: Lessons from CHRISTUS Health, AnMed and St. Luke’s",date:"2026-05-01",type:"Webinar",sent:29560,delivered:0,real_opens:1401,open_rate:4.74,unique_real_clicks:51,ctr:0.173},
+  {name:"CustomMedia-Webinar#2-Lumeris-20260504",subject:"Rethinking primary care delivery: Lessons from Ochsner Health",date:"2026-05-04",type:"Webinar",sent:29540,delivered:0,real_opens:1395,open_rate:4.72,unique_real_clicks:110,ctr:0.372},
+  {name:"CustomMedia-Webinar-GenomewebCrossPromo-20260505",subject:"From Bench to Bedside: The Value of Integrating Genomic Testing Into Clinical Practice",date:"2026-05-05",type:"Webinar",sent:14967,delivered:0,real_opens:637,open_rate:4.26,unique_real_clicks:20,ctr:0.134},
+  {name:"CustomMedia-GatedContent-SwordHealth-20260506",subject:"A new approach to reducing MSK costs—and proving ROI",date:"2026-05-06",type:"GatedContent",sent:29783,delivered:0,real_opens:1434,open_rate:4.81,unique_real_clicks:83,ctr:0.279},
+  {name:"CustomMedia-Webinar#3-Premier-20260506",subject:"How health systems are using collaboration to improve performance",date:"2026-05-06",type:"Webinar",sent:809,delivered:0,real_opens:66,open_rate:8.16,unique_real_clicks:15,ctr:1.854},
+  {name:"CustomMedia-GatedContent-SwordHealth-20260507",subject:"The problem with MSK ROI claims—and a better way forward",date:"2026-05-07",type:"GatedContent",sent:29744,delivered:0,real_opens:1414,open_rate:4.75,unique_real_clicks:65,ctr:0.219},
+  {name:"CustomMedia-Webinar#4-Premier-20260507",subject:"To fix performance gaps, health systems turn to collaboration",date:"2026-05-07",type:"Webinar",sent:29425,delivered:0,real_opens:1181,open_rate:4.01,unique_real_clicks:39,ctr:0.133},
+  {name:"CustomMedia-Podcast-Volpara-20260508",subject:"Cancer risk assessment at scale: What health systems can learn",date:"2026-05-08",type:"Podcast",sent:10238,delivered:0,real_opens:633,open_rate:6.18,unique_real_clicks:27,ctr:0.264},
+  {name:"CustomMedia-Webinar#3-Lumeris-20260511",subject:"Smarter primary care: AI, access and a new care model",date:"2026-05-11",type:"Webinar",sent:29342,delivered:0,real_opens:1287,open_rate:4.39,unique_real_clicks:49,ctr:0.167},
+  {name:"CustomMedia-QTVideo-SmartRiseHealth-20260512",subject:"Quick Take: Scaling value-based care starts with one key question",date:"2026-05-12",type:"QTVideo",sent:10061,delivered:0,real_opens:592,open_rate:5.88,unique_real_clicks:23,ctr:0.229},
+  {name:"CustomMedia-GatedContent-Vizient-20260519",subject:"What high-performing health systems do differently to scale growth",date:"2026-05-19",type:"GatedContent",sent:27604,delivered:0,real_opens:1092,open_rate:3.96,unique_real_clicks:50,ctr:0.181},
+  {name:"CustomMedia-GatedContent-DSD-20260520",subject:"Healthcare CFOs are redefining leadership in 2026",date:"2026-05-20",type:"GatedContent",sent:29693,delivered:0,real_opens:1234,open_rate:4.16,unique_real_clicks:44,ctr:0.148},
+  {name:"CustomMedia-Podcast-Temple-20260514",subject:"How Temple Health is redefining lung transplant care",date:"2026-05-21",type:"Podcast",sent:15504,delivered:0,real_opens:535,open_rate:3.45,unique_real_clicks:4,ctr:0.026}
+];
+
+/* ═══════════════════════════════════════════════════════════
+   MH CONVERSION DATA (from Smartsheet – Email Data & KPI Input)
+═══════════════════════════════════════════════════════════ */
+const mhConversions={
+  // January 2026
+  "CustomMedia-GatedContent-CHC-20260106 [A]":{v:32,t:'L'},
+  "CustomMedia-GatedContent-CHC-20260106 [B]":{v:32,t:'L'},
+  "CustomMedia-GatedContent-Nordic-20250106":{v:30,t:'L'},
+  "CustomMedia-GatedContent#2-Nordic-20250119":{v:15,t:'L'},
+  "CustomMedia-GatedContent#2-CHC-20260120":{v:16,t:'L'},
+  "CustomMedia-GatedContent-PWC-20260121":{v:75,t:'L'},
+  "CustomMedia-ICYMI-January-20260125 [B]":{v:18,t:'I'},
+  "CustomMedia-ICYMI-January-20260125 [A]":{v:18,t:'I'},
+  // February 2026
+  "CustomMedia-HLR-January-20260130":{v:150,t:'L'},
+  "CustomMedia-ICYMI-February-20260215":{v:10,t:'I'},
+  "CustomMedia-GatedContent-Waystar-20260218":{v:53,t:'L'},
+  "CustomMedia-Webinar#1-Premier-20260223":{v:3,t:'R'},
+  "CustomMedia-Webinar#1-MedSpeed-20260224":{v:7,t:'R'},
+  "CustomMedia-GatedContent-Laudio-20260224":{v:7,t:'L'},
+  // March 2026
+  "CustomMedia-HLR-March-20260301":{v:40,t:'L'},
+  "CustomMedia-Webinar#2-Premier-20260303":{v:18,t:'R'},
+  "CustomMedia-Webinar#2-Medspeed-20260304":{v:8,t:'R'},
+  "CustomMedia-Webinar#3-Premier-20260306":{v:49,t:'R'},
+  "CustomMedia-Webinar#3-MedSpeed-20260308":{v:46,t:'R'},
+  "CustomMedia-Webinar#4-Premier-20260309":{v:25,t:'R'},
+  "CustomMedia-Webinar#4-Medspeed-20260310":{v:23,t:'R'},
+  "CustomMedia-GatedContent-Shields-20260317":{v:16,t:'L'},
+  "CustomMedia-GatedContent-Tecsys-20260318":{v:9,t:'L'},
+  "CustomMedia-HLR-March2-20260322":{v:41,t:'L'},
+  "CustomMedia-ICYMI-March-20260329":{v:17,t:'L'},
+  "CustomMedia-WOD-Silk-20260331":{v:0,t:'L'},
+  // April 2026
+  "CustomMedia-GatedContent-WOD2-Silk-20260408":{v:5,t:'L'},
+  "CustomMedia-HLR-April-20260412":{v:49,t:'L'},
+  "CustomMedia-Webinar#1-Premier-20260422":{v:32,t:'R'},
+  "CustomMedia-Webinar#1-Lumeris-20260423":{v:60,t:'R'},
+  "CustomMedia-GatedContent-HealthCatalyst-20260428":{v:49,t:'L'},
+  // May 2026
+  "CustomMedia-Webinar#2-Premier-20260501":{v:17,t:'R'},
+  "CustomMedia-Webinar#2-Lumeris-20260504":{v:82,t:'R'},
+  "CustomMedia-Webinar-GenomewebCrossPromo-20260505":{v:30,t:'R'},
+  "CustomMedia-GatedContent-SwordHealth-20260506":{v:31,t:'L'},
+  "CustomMedia-Webinar#3-Premier-20260506":{v:13,t:'R'},
+  "CustomMedia-Webinar#4-Premier-20260507":{v:16,t:'R'},
+  "CustomMedia-GatedContent-SwordHealth-20260507":{v:20,t:'L'},
+  "CustomMedia-Webinar#3-Lumeris-20260511":{v:31,t:'R'},
+};
+function convChip(name){
+  const d=mhConversions[name];
+  if(!d||d.v===0&&d.t==='L') return d&&d.v===0?'<span style="color:#94a3b8">0</span>':'<span style="color:#94a3b8">—</span>';
+  const labels={L:'Lead',R:'Reg',I:'ICYMI'};
+  const colors={L:'#10b981',R:'#3b82f6',I:'#8b5cf6'};
+  return '<span style="font-weight:700;color:'+colors[d.t]+'">'+d.v+'</span>'
+        +'<span style="font-size:10px;color:'+colors[d.t]+';margin-left:3px">'+labels[d.t]+'</span>';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AA DATA
+═══════════════════════════════════════════════════════════ */
+const adAgeCampaigns=[
+  {client:"StabilityAI",type:"Whitepaper",date:"2026-01-05",subject:"Free white paper: The next era of AI: Custom models that get your brand right",sent:85898,real_opens:3292,unique_real_clicks:205,or_pct:3.83,ctr:0.239},
+  {client:"IndieConsulting",type:"Whitepaper",date:"2026-01-06",subject:"Free white paper: Omni or die: The new survival guide for CPG brands",sent:85722,real_opens:3323,unique_real_clicks:218,or_pct:3.88,ctr:0.254},
+  {client:"StackAdapt",type:"Whitepaper",date:"2026-01-07",subject:"Free white paper: Your guide to DOOH campaigns that inspire consumer action",sent:85661,real_opens:3233,unique_real_clicks:140,or_pct:3.77,ctr:0.163},
+  {client:"Later",type:"Whitepaper",date:"2026-01-08",subject:"Free white paper: The turning point: Why 61% of brands now treat influencer as infrastructure",sent:85539,real_opens:3230,unique_real_clicks:168,or_pct:3.78,ctr:0.196},
+  {client:"Infusion",type:"Whitepaper",date:"2026-01-13",subject:"Ad Age custom white paper: Crack the Code to Brand Growth: Cultural Fluency Drives Connection",sent:85352,real_opens:3242,unique_real_clicks:130,or_pct:3.8,ctr:0.152},
+  {client:"StabilityAI",type:"Whitepaper",date:"2026-01-20",subject:"Free white paper: The next era of AI: Custom models that get your brand right",sent:85029,real_opens:3176,unique_real_clicks:132,or_pct:3.74,ctr:0.155},
+  {client:"Whitepaper-DAC",type:"Whitepaper",date:"2026-01-21",subject:"Free white paper: How to use location-based planning to improve media precision and personalization",sent:85003,real_opens:3045,unique_real_clicks:102,or_pct:3.58,ctr:0.12},
+  {client:"Webflow",type:"Whitepaper",date:"2026-01-22",subject:"Free white paper: Why platform investment is the top priority for marketers in 2026",sent:84965,real_opens:3016,unique_real_clicks:85,or_pct:3.55,ctr:0.1},
+  {client:"StackAdapt",type:"Whitepaper",date:"2026-01-23",subject:"Free white paper: The benchmarks shaping programmatic in 2026",sent:84750,real_opens:3034,unique_real_clicks:108,or_pct:3.58,ctr:0.127},
+  {client:"StackAdapt",type:"Whitepaper",date:"2026-01-28",subject:"Free white paper: Sneak peek: 2026 programmatic advertising trends",sent:84592,real_opens:3398,unique_real_clicks:124,or_pct:4.02,ctr:0.147},
+  {client:"Webflow",type:"Whitepaper",date:"2026-02-02",subject:"Free white paper: Why platform investment is the top priority for marketers in 2026",sent:84468,real_opens:3661,unique_real_clicks:134,or_pct:4.33,ctr:0.159},
+  {client:"YouGov",type:"Whitepaper",date:"2026-02-04",subject:"Free white paper: See which brands topped YouGov’s annual rankings report, available now",sent:84426,real_opens:3636,unique_real_clicks:154,or_pct:4.31,ctr:0.182},
+  {client:"Cint",type:"Whitepaper",date:"2026-02-13",subject:"Free white paper: Big game buzz ‘26 and what it means for advertisers",sent:84104,real_opens:3570,unique_real_clicks:85,or_pct:4.24,ctr:0.101},
+  {client:"Whitepaper-DAC",type:"Whitepaper",date:"2026-02-17",subject:"Free white paper: How to use location-based planning to improve media precision and personalization",sent:84011,real_opens:3479,unique_real_clicks:122,or_pct:4.14,ctr:0.145},
+  {client:"TVScientific",type:"Whitepaper",date:"2026-02-19",subject:"Free white paper: Turn TV advertising into a performance channel",sent:83984,real_opens:3128,unique_real_clicks:101,or_pct:3.72,ctr:0.12},
+  {client:"YouGov",type:"Whitepaper",date:"2026-03-02",subject:"Free white paper: See which brands topped YouGov’s annual rankings report, available now",sent:83942,real_opens:3092,unique_real_clicks:136,or_pct:3.68,ctr:0.162},
+  {client:"Datonics",type:"Whitepaper",date:"2026-03-05",subject:"Ad Age custom white paper: The carbon cost of advertising: Marketer benefits of early adoption",sent:83831,real_opens:2963,unique_real_clicks:77,or_pct:3.53,ctr:0.092},
+  {client:"Cint",type:"Whitepaper",date:"2026-03-09",subject:"Free white paper: Big game buzz ‘26 and what it means for advertisers",sent:83591,real_opens:2983,unique_real_clicks:95,or_pct:3.57,ctr:0.114},
+  {client:"Equifix",type:"Whitepaper",date:"2026-03-10",subject:"Free white paper: 3 ways to power smarter marketing with household economic insights",sent:83550,real_opens:3085,unique_real_clicks:130,or_pct:3.69,ctr:0.156},
+  {client:"StarfishCo",type:"Whitepaper",date:"2026-03-12",subject:"Free white paper: Protect your brand's soul in the age of AI",sent:83454,real_opens:2992,unique_real_clicks:269,or_pct:3.59,ctr:0.322},
+  {client:"IndieConsulting",type:"Whitepaper",date:"2026-03-16",subject:"Free white paper: Omni or die: The new survival guide for CPG brands",sent:83313,real_opens:2929,unique_real_clicks:142,or_pct:3.52,ctr:0.17},
+  {client:"StackAdapt",type:"Whitepaper",date:"2026-03-17",subject:"Free white paper: The benchmarks shaping programmatic in 2026",sent:83241,real_opens:2987,unique_real_clicks:90,or_pct:3.59,ctr:0.108},
+  {client:"Later",type:"Whitepaper",date:"2026-03-19",subject:"Free white paper: The turning point: Why 61% of brands now treat influencer as infrastructure",sent:119932,real_opens:4750,unique_real_clicks:255,or_pct:3.96,ctr:0.213},
+  {client:"TVScientific",type:"Whitepaper",date:"2026-03-24",subject:"Free white paper: Turn TV advertising into a performance channel",sent:119628,real_opens:4866,unique_real_clicks:189,or_pct:4.07,ctr:0.158},
+  {client:"Audacy",type:"Whitepaper",date:"2026-03-27",subject:"Free white paper: Sports fandom: How today’s sports fans show up, engage and drive brand results",sent:119361,real_opens:4875,unique_real_clicks:232,or_pct:4.08,ctr:0.194},
+  {client:"Cint",type:"Whitepaper",date:"2026-03-29",subject:"Free white paper: Big game buzz ‘26 and what it means for advertisers",sent:119283,real_opens:4698,unique_real_clicks:142,or_pct:3.94,ctr:0.119},
+  {client:"Revmatics",type:"Whitepaper",date:"2026-04-02",subject:"5 ways self-improving AI is reshaping marketing",sent:119022,real_opens:4731,unique_real_clicks:121,or_pct:3.97,ctr:0.102},
+  {client:"FranklinMadisonDirect",type:"Whitepaper",date:"2026-04-09",subject:"Free white paper: 2026 direct mail marketing benchmark report",sent:118738,real_opens:4757,unique_real_clicks:177,or_pct:4.01,ctr:0.149},
+  {client:"AmazonAds",type:"Whitepaper",date:"2026-04-10",subject:"Free white paper: The new standard: How benchmarks are transforming performance evaluation",sent:118656,real_opens:4653,unique_real_clicks:136,or_pct:3.92,ctr:0.115},
+  {client:"BaderRutter",type:"Whitepaper",date:"2026-04-14",subject:"Free white paper: Mental Equity: Now you can make your brand the reflex choice",sent:118507,real_opens:4719,unique_real_clicks:155,or_pct:3.98,ctr:0.131},
+  {client:"Datonics",type:"Whitepaper",date:"2026-04-15",subject:"Ad Age custom white paper: The carbon cost of advertising: Marketer benefits of early adoption",sent:118434,real_opens:4674,unique_real_clicks:122,or_pct:3.95,ctr:0.103},
+  {client:"Equifix",type:"Whitepaper",date:"2026-04-21",subject:"Free white paper: 3 ways to power smarter marketing with household economic insights",sent:116131,real_opens:4578,unique_real_clicks:137,or_pct:3.94,ctr:0.118},
+  {client:"Paramount",type:"Whitepaper",date:"2026-04-30",subject:"Full stream ahead: How streaming recaptured collective attention",sent:115505,real_opens:4637,unique_real_clicks:128,or_pct:4.01,ctr:0.111},
+  {client:"StarfishCo",type:"Whitepaper",date:"2026-05-05",subject:"Free white paper: Protect your brand's soul in the age of AI",sent:114873,real_opens:4554,unique_real_clicks:162,or_pct:3.96,ctr:0.141},
+  {client:"Datonics",type:"Whitepaper",date:"2026-05-07",subject:"The carbon cost of advertising: Marketer benefits of early adoption",sent:114571,real_opens:4632,unique_real_clicks:115,or_pct:4.04,ctr:0.1},
+  {client:"BaderRutter",type:"Whitepaper",date:"2026-05-11",subject:"Free white paper: Mental Equity: Now you can make your brand the reflex choice",sent:114175,real_opens:4597,unique_real_clicks:160,or_pct:4.03,ctr:0.14},
+  {client:"Audacy",type:"Whitepaper",date:"2026-05-13",subject:"Free white paper: Sports fandom: How today’s sports fans show up, engage and drive brand results",sent:113912,real_opens:4609,unique_real_clicks:229,or_pct:4.05,ctr:0.201},
+  {client:"Revmatics",type:"Whitepaper",date:"2026-05-15",subject:"5 ways self-improving AI is reshaping marketing",sent:113611,real_opens:4642,unique_real_clicks:130,or_pct:4.09,ctr:0.114},
+  {client:"AmazonAds",type:"Whitepaper",date:"2026-05-18",subject:"Free white paper: The new standard: How benchmarks are transforming performance evaluation",sent:113414,real_opens:4361,unique_real_clicks:132,or_pct:3.85,ctr:0.116},
+  {client:"CMO",type:"Whitepaper",date:"2026-05-18",subject:"Plot twist: The intern is part of your buying committee",sent:113334,real_opens:4859,unique_real_clicks:124,or_pct:4.29,ctr:0.109},
+  {client:"Datonics",type:"Whitepaper",date:"2026-05-19",subject:"The carbon cost of advertising: Marketer benefits of early adoption",sent:113176,real_opens:4463,unique_real_clicks:104,or_pct:3.94,ctr:0.092},
+  {client:"FranklinMadisonDirect",type:"Whitepaper",date:"2026-05-21",subject:"Free white paper: 2026 direct mail marketing benchmark report",sent:112833,real_opens:3916,unique_real_clicks:133,or_pct:3.47,ctr:0.118}
+];
+
+/* ═══════════════════════════════════════════════════════════
+   PI DATA
+═══════════════════════════════════════════════════════════ */
+const piCampaigns=[
+  {client:"ABF Multi-Sponsored Webinar",type:"Webinar",date:"2026-01-06",subject:"Asset-Based Finance Multi-Sponsored Webinar | Sponsorship Opportunity",sent:41585,real_opens:2049,unique_real_clicks:169,or_pct:4.93,ctr:0.406},
+  {client:"Private Markets Conference",type:"Custom",date:"2026-01-07",subject:"P&I x IPEM Private Markets 2026 | Sponsorship Opportunity",sent:41555,real_opens:2972,unique_real_clicks:94,or_pct:7.15,ctr:0.226},
+  {client:"Podcast Sponsorship",type:"Podcast",date:"2026-01-08",subject:"The Digital Transformation: Tokenization of Real-World Assets",sent:41506,real_opens:2129,unique_real_clicks:48,or_pct:5.13,ctr:0.116},
+  {client:"Private Credit Supplement",type:"Supplement",date:"2026-01-13",subject:"P&I Private Credit Supplement | Sponsorship Opportunity",sent:41429,real_opens:1709,unique_real_clicks:47,or_pct:4.13,ctr:0.113},
+  {client:"Retirement Income Solutions Conference",type:"Custom",date:"2026-01-15",subject:"Retirement Income Solutions Conference 2026 | Sponsorship Opportunity",sent:41387,real_opens:2017,unique_real_clicks:44,or_pct:4.87,ctr:0.106},
+  {client:"RPA Best Practices Multi-Sponsored Webinar",type:"Webinar",date:"2026-01-20",subject:"RPA Series: Best Practices in Plan Design | Sponsorship Opportunity",sent:41337,real_opens:1808,unique_real_clicks:40,or_pct:4.37,ctr:0.097},
+  {client:"E&F Assets Roundtable",type:"Roundtable",date:"2026-01-21",subject:"Endowment & Foundation Assets Roundtable | Sponsorship Opportunity",sent:41312,real_opens:2406,unique_real_clicks:83,or_pct:5.82,ctr:0.201},
+  {client:"WPS",type:"Custom",date:"2026-01-22",subject:"P&I WorldPensionSummit 2026 | Sponsorship Opportunity",sent:13695,real_opens:537,unique_real_clicks:6,or_pct:3.92,ctr:0.044},
+  {client:"Private Credit Supplement",type:"Supplement",date:"2026-01-22",subject:"Only One Spot Remains: P&I Private Credit Supplement",sent:41277,real_opens:1669,unique_real_clicks:47,or_pct:4.04,ctr:0.114},
+  {client:"Fixed Income Supplement",type:"Supplement",date:"2026-01-27",subject:"Fixed Income: A Supportive Ballast | Sponsorship Opportunity",sent:40653,real_opens:1691,unique_real_clicks:70,or_pct:4.16,ctr:0.172},
+  {client:"Infrastructure Intel",type:"Intel",date:"2026-01-28",subject:"Infrastructure: A Buoyant Future | Sponsorship Opportunity",sent:40633,real_opens:1732,unique_real_clicks:52,or_pct:4.26,ctr:0.128},
+  {client:"ABF Multi-Sponsored Webinar",type:"Webinar",date:"2026-01-29",subject:"Asset-Based Finance Multi-Sponsored Webinar | Sponsorship Opportunity",sent:40615,real_opens:1750,unique_real_clicks:32,or_pct:4.31,ctr:0.079},
+  {client:"Emerging Markets Multi-Sponsored Webinar",type:"Webinar",date:"2026-02-03",subject:"Emerging Markets: A Selective View | Sponsorship Opportunity",sent:41174,real_opens:1931,unique_real_clicks:93,or_pct:4.69,ctr:0.226},
+  {client:"P&I Convergence Conference",type:"Custom",date:"2026-02-04",subject:"P&I Convergence 2026 | Sponsorship Opportunity",sent:41156,real_opens:2032,unique_real_clicks:48,or_pct:4.94,ctr:0.117},
+  {client:"Private Markets Conference",type:"Custom",date:"2026-02-10",subject:"P&I x IPEM Private Markets 2026 | Sponsorship Opportunity",sent:41112,real_opens:2058,unique_real_clicks:61,or_pct:5.01,ctr:0.148},
+  {client:"Private Equity Supplement",type:"Supplement",date:"2026-02-12",subject:"Private Equity: Selective Path Forward | Sponsorship Opportunity",sent:41067,real_opens:1909,unique_real_clicks:68,or_pct:4.65,ctr:0.166},
+  {client:"Emerging Markets Multi-Sponsored Webinar",type:"Webinar",date:"2026-02-17",subject:"Emerging Markets: A Selective View | Sponsorship Opportunity",sent:41039,real_opens:2462,unique_real_clicks:67,or_pct:6.0,ctr:0.163},
+  {client:"Pension Derisking Supplement",type:"Supplement",date:"2026-02-18",subject:"Pension Derisking: Planning the Forward Journey  | Sponsorship Opportunity",sent:40999,real_opens:2260,unique_real_clicks:90,or_pct:5.51,ctr:0.22},
+  {client:"Retirement Income Multi-Sponsored Webinar",type:"Webinar",date:"2026-02-19",subject:"The Path Forward for Retirement Income | Sponsorship Opportunity",sent:40967,real_opens:2139,unique_real_clicks:69,or_pct:5.22,ctr:0.168},
+  {client:"P&I Convergence Conference",type:"Custom",date:"2026-02-20",subject:"P&I Convergence 2026 | Sponsorship Opportunity",sent:40951,real_opens:2276,unique_real_clicks:51,or_pct:5.56,ctr:0.125},
+  {client:"Infrastructure Intel",type:"Intel",date:"2026-02-23",subject:"Infrastructure: A Buoyant Future | Sponsorship Opportunity",sent:40953,real_opens:2359,unique_real_clicks:133,or_pct:5.76,ctr:0.325},
+  {client:"Systematic Strategies Supplement",type:"Supplement",date:"2026-02-24",subject:"Systematic Strategies: An Expanding Toolkit | Sponsorship Opportunity",sent:40958,real_opens:2347,unique_real_clicks:101,or_pct:5.73,ctr:0.247},
+  {client:"Insurance Allocators Roundtable",type:"Roundtable",date:"2026-02-26",subject:"Insurance Allocators Roundtable | Sponsorship Opportunity",sent:40906,real_opens:3011,unique_real_clicks:331,or_pct:7.36,ctr:0.809},
+  {client:"CanadianPensionManagementWebinar",type:"Webinar",date:"2026-03-03",subject:"Canadian Pension Management Webinar Series | Sponsorship Opportunities",sent:40829,real_opens:2695,unique_real_clicks:64,or_pct:6.6,ctr:0.157},
+  {client:"Bringing Alternatives in DC Intel",type:"Intel",date:"2026-03-05",subject:"Bringing Alternatives in DC | Sponsorship Opportunity",sent:40809,real_opens:2470,unique_real_clicks:49,or_pct:6.05,ctr:0.12},
+  {client:"Emerging Markets Intel",type:"Intel",date:"2026-03-10",subject:"Emerging Markets Industry Intel | Sponsorship Opportunity",sent:40752,real_opens:2615,unique_real_clicks:176,or_pct:6.42,ctr:0.432},
+  {client:"Infrastructure Intel",type:"Intel",date:"2026-03-11",subject:"Infrastructure: A Buoyant Future | Sponsorship Opportunity",sent:40729,real_opens:2728,unique_real_clicks:313,or_pct:6.7,ctr:0.768},
+  {client:"E&amp;F Assets Roundtable",type:"Roundtable",date:"2026-03-12",subject:"Endowment & Foundation Assets Roundtable | Sponsorship Opportunity",sent:40681,real_opens:3295,unique_real_clicks:168,or_pct:8.1,ctr:0.413},
+  {client:"OCIO for Corporate Pension Plans Multi-Sponsored Webinar",type:"Webinar",date:"2026-03-17",subject:"OCIO Series: Corporate Pension Plans | Sponsorship Opportunity",sent:40638,real_opens:2712,unique_real_clicks:56,or_pct:6.67,ctr:0.138},
+  {client:"CanadianPensionManagementWebinar",type:"Webinar",date:"2026-03-19",subject:"Canadian Pension Management Webinar Series | Sponsorship Opportunities",sent:40589,real_opens:2661,unique_real_clicks:72,or_pct:6.56,ctr:0.177},
+  {client:"WPS_Nordics",type:"Custom",date:"2026-03-24",subject:"Nordics Pension Fund Tour & Dialogue 2026 | Sponsorship Opportunity",sent:13283,real_opens:988,unique_real_clicks:30,or_pct:7.44,ctr:0.226},
+  {client:"Direct Lending Intel",type:"Intel",date:"2026-03-26",subject:"Direct Lending: Selective Exposure | Sponsorship Opportunity",sent:40547,real_opens:2700,unique_real_clicks:57,or_pct:6.66,ctr:0.141},
+  {client:"Private Markets Conference",type:"Custom",date:"2026-03-31",subject:"P&I x IPEM Private Markets 2026 | Sponsorship Opportunity",sent:40829,real_opens:2884,unique_real_clicks:68,or_pct:7.06,ctr:0.167},
+  {client:"Pension Derisking Supplement",type:"Supplement",date:"2026-04-02",subject:"Pension Derisking: Planning the Forward Journey  | Sponsorship Opportunity",sent:40773,real_opens:2524,unique_real_clicks:50,or_pct:6.19,ctr:0.123},
+  {client:"PortableAlphaWebinar",type:"Webinar",date:"2026-04-07",subject:"New Topic Added - Portable Alpha | Sponsorship Opportunity",sent:40274,real_opens:2702,unique_real_clicks:54,or_pct:6.71,ctr:0.134},
+  {client:"Bringing Alternatives to DC Intel",type:"Intel",date:"2026-04-09",subject:"Bringing Alternatives to DC | Sponsorship Opportunity",sent:40210,real_opens:2539,unique_real_clicks:42,or_pct:6.31,ctr:0.104},
+  {client:"Private Equity Supplement",type:"Supplement",date:"2026-04-14",subject:"Private Equity: Selective Path Forward | Sponsorship Opportunity",sent:40178,real_opens:2521,unique_real_clicks:50,or_pct:6.27,ctr:0.124},
+  {client:"ETF Industry Intel",type:"Intel",date:"2026-04-16",subject:"New Topic Added: A Strategic Shift Forward in ETF Usage | Sponsorship Opportunity",sent:40149,real_opens:2493,unique_real_clicks:64,or_pct:6.21,ctr:0.159},
+  {client:"HedgeFundsWebinar",type:"Webinar",date:"2026-04-21",subject:"New Topic Added: A Constructive Moment for Hedge Funds | Sponsorship Opportunity",sent:40030,real_opens:2654,unique_real_clicks:187,or_pct:6.63,ctr:0.467},
+  {client:"WPS_UK",type:"Custom",date:"2026-04-23",subject:"2026 UK Pension Fund Tour & Dialogue | Sponsorship Opportunity",sent:13223,real_opens:921,unique_real_clicks:43,or_pct:6.97,ctr:0.325},
+  {client:"CanadianPMWebinar",type:"Webinar",date:"2026-04-28",subject:"New Topic Added: Understanding the Total Portfolio Approach in Canadian Pension Plan Governance | Sponsorship Opportunity",sent:39986,real_opens:2471,unique_real_clicks:51,or_pct:6.18,ctr:0.128},
+  {client:"RetIncomeWebinar",type:"Webinar",date:"2026-04-30",subject:"The Path Forward for Retirement Income | Sponsorship Opportunity",sent:39886,real_opens:2360,unique_real_clicks:79,or_pct:5.92,ctr:0.198},
+  {client:"DirectLendingIntel",type:"Intel",date:"2026-05-05",subject:"Direct Lending: Selective Exposure | Sponsorship Opportunity",sent:39805,real_opens:2392,unique_real_clicks:48,or_pct:6.01,ctr:0.121},
+  {client:"PIConvergenceConference",type:"Custom",date:"2026-05-07",subject:"P&I Convergence 2026 | Sponsorship Opportunity",sent:39734,real_opens:2451,unique_real_clicks:68,or_pct:6.17,ctr:0.171},
+  {client:"ABFWebinar",type:"Webinar",date:"2026-05-12",subject:"Asset-Based Finance | Sponsorship Opportunity",sent:39660,real_opens:2594,unique_real_clicks:72,or_pct:6.54,ctr:0.182},
+  {client:"OCIO:CPPWebinar",type:"Webinar",date:"2026-05-14",subject:"OCIO Series: Corporate Pension Plans | Sponsorship Opportunity",sent:39611,real_opens:2534,unique_real_clicks:68,or_pct:6.4,ctr:0.172},
+  {client:"PrivateEquitySupplement",type:"Supplement",date:"2026-05-18",subject:"Private Equity Supplement | One Sponsorship Remaining",sent:39589,real_opens:2444,unique_real_clicks:58,or_pct:6.17,ctr:0.147},
+  {client:"EmergingMarketsIntel",type:"Intel",date:"2026-05-21",subject:"Emerging Markets Intel | Sponsorship Opportunity",sent:39544,real_opens:2029,unique_real_clicks:63,or_pct:5.13,ctr:0.159}
+];
+
+/* ═══════════════════════════════════════════════════════════
+   GW DATA
+═══════════════════════════════════════════════════════════ */
+const gwCampaigns=[
+  {client:"FMI VMTB",type:"Webinar",date:"2026-01-06",subject:"Breast Cancer Biomarkers in Clinical Practice: Understanding Copy Number Loss",sent:9974,real_opens:551,unique_real_clicks:41,or_pct:5.52,ctr:0.411},
+  {client:"BD",type:"Webinar",date:"2026-01-06",subject:"Single-Cell Multiomics Uncovers Hidden Dendritic Cell Populations to Inform Development of Immunotherapeutics",sent:12011,real_opens:695,unique_real_clicks:22,or_pct:5.79,ctr:0.183},
+  {client:"Mailing #272 01",type:"Webinar",date:"2026-01-07",subject:"Educational Resources From Our Partners",sent:19969,real_opens:1294,unique_real_clicks:88,or_pct:6.48,ctr:0.441},
+  {client:"FMI VMTB",type:"Webinar",date:"2026-01-08",subject:"Breast Cancer Biomarkers in Clinical Practice: Understanding Copy Number Loss",sent:10007,real_opens:527,unique_real_clicks:56,or_pct:5.27,ctr:0.56},
+  {client:"Illumina",type:"Webinar",date:"2026-01-08",subject:"Scaling NGS at Core Labs With Novel High-Throughput Sequencer Innovations",sent:12038,real_opens:727,unique_real_clicks:48,or_pct:6.04,ctr:0.399},
+  {client:"Topic Takeover - KS - Agilent ctDNA",type:"Webinar",date:"2026-01-08",subject:"Recent Headlines in ctDNA Testing",sent:5046,real_opens:335,unique_real_clicks:45,or_pct:6.64,ctr:0.892},
+  {client:"BD",type:"Webinar",date:"2026-01-12",subject:"Single-Cell Multiomics Uncovers Hidden Dendritic Cell Populations to Inform Development of Immunotherapeutics",sent:15036,real_opens:1081,unique_real_clicks:28,or_pct:7.19,ctr:0.186},
+  {client:"FMI VMTB",type:"Webinar",date:"2026-01-12",subject:"Last Chance to Register: Breast Cancer Biomarkers in Clinical Practice: Understanding Copy Number Loss",sent:10481,real_opens:476,unique_real_clicks:51,or_pct:4.54,ctr:0.487},
+  {client:"Illumina",type:"Webinar",date:"2026-01-14",subject:"Scaling NGS at Core Labs With Novel High-Throughput Sequencer Innovations",sent:12592,real_opens:753,unique_real_clicks:40,or_pct:5.98,ctr:0.318},
+  {client:"Mailing #273 01",type:"Webinar",date:"2026-01-14",subject:"Educational Resources From Our Partners",sent:20021,real_opens:1298,unique_real_clicks:46,or_pct:6.48,ctr:0.23},
+  {client:"Topic Takeover - KS - GW Agilent Inherited Disease",type:"Webinar",date:"2026-01-14",subject:"Recent News in Inherited Disease Research",sent:5043,real_opens:399,unique_real_clicks:53,or_pct:7.91,ctr:1.051},
+  {client:"BD",type:"Webinar",date:"2026-01-15",subject:"Single-Cell Multiomics Uncovers Hidden Dendritic Cell Populations to Inform Development of Immunotherapeutics",sent:15035,real_opens:1046,unique_real_clicks:79,or_pct:6.96,ctr:0.525},
+  {client:"BD",type:"Webinar",date:"2026-01-15",subject:"Genome-scale Functional Mapping of Immune Disease Variants with CRISPR and Single-Cell RNA-Seq",sent:12551,real_opens:671,unique_real_clicks:32,or_pct:5.35,ctr:0.255},
+  {client:"Roche",type:"Webinar",date:"2026-01-15",subject:"Accelerating the Future of Precision Oncology Through Integrated Genomics: How Princess Máxima Center Changes the Paradigm",sent:12555,real_opens:585,unique_real_clicks:36,or_pct:4.66,ctr:0.287},
+  {client:"BD",type:"Webinar",date:"2026-01-15",subject:"Combining Single-Cell RNA-seq and Proteomics to Improve Therapeutic Vaccine Design",sent:4108,real_opens:409,unique_real_clicks:63,or_pct:9.96,ctr:1.534},
+  {client:"Topic Takeover - KS - Illumina SeqApp",type:"Webinar",date:"2026-01-15",subject:"Recent News in Sequencing Applications",sent:5048,real_opens:414,unique_real_clicks:44,or_pct:8.2,ctr:0.872},
+  {client:"Illumina",type:"Webinar",date:"2026-01-20",subject:"Scaling NGS at Core Labs With Novel High-Throughput Sequencer Innovations",sent:15022,real_opens:942,unique_real_clicks:59,or_pct:6.27,ctr:0.393},
+  {client:"Topic Takeover - KS - ExactSciences",type:"Webinar",date:"2026-01-20",subject:"Recent News in MRD Testing",sent:7542,real_opens:461,unique_real_clicks:95,or_pct:6.11,ctr:1.26},
+  {client:"BD",type:"Webinar",date:"2026-01-21",subject:"Combining Single-Cell RNA-seq and Proteomics to Improve Therapeutic Vaccine Design",sent:15027,real_opens:1038,unique_real_clicks:33,or_pct:6.91,ctr:0.22},
+  {client:"BD",type:"Webinar",date:"2026-01-21",subject:"Genome-scale Functional Mapping of Immune Disease Variants with CRISPR and Single-Cell RNA-Seq",sent:12534,real_opens:698,unique_real_clicks:30,or_pct:5.57,ctr:0.239},
+  {client:"Roche",type:"Webinar",date:"2026-01-21",subject:"Accelerating the Future of Precision Oncology Through Integrated Genomics: How Princess Máxima Center Changes the Paradigm",sent:12536,real_opens:566,unique_real_clicks:33,or_pct:4.51,ctr:0.263},
+  {client:"SchottMF",type:"Webinar",date:"2026-01-21",subject:"Unleashing the Full Power of Microarrays ",sent:12538,real_opens:787,unique_real_clicks:33,or_pct:6.28,ctr:0.263},
+  {client:"Biodot",type:"Webinar",date:"2026-01-21",subject:"Discrete Droplet Dispensing for Nanoliter-Scale PCR: Cut Costs Without Compromise",sent:12545,real_opens:720,unique_real_clicks:21,or_pct:5.74,ctr:0.167},
+  {client:"Mailing #274 01",type:"Webinar",date:"2026-01-21",subject:"Educational Resources From Our Partners",sent:20033,real_opens:1245,unique_real_clicks:71,or_pct:6.21,ctr:0.354},
+  {client:"Vivosim",type:"Webinar",date:"2026-01-22",subject:"The NAM Era of Toxicology: Regulatory Momentum and Human-Based Insights for ADC Safety",sent:12550,real_opens:704,unique_real_clicks:27,or_pct:5.61,ctr:0.215},
+  {client:"BD",type:"Webinar",date:"2026-01-26",subject:"Last Chance to Register: Combining Single-Cell RNA-seq and Proteomics to Improve Therapeutic Vaccine Design",sent:16565,real_opens:1062,unique_real_clicks:40,or_pct:6.41,ctr:0.241},
+  {client:"SchottMF",type:"Webinar",date:"2026-01-27",subject:"Unleashing the Full Power of Microarrays ",sent:14895,real_opens:945,unique_real_clicks:42,or_pct:6.34,ctr:0.282},
+  {client:"Roche",type:"Webinar",date:"2026-01-27",subject:"Accelerating the Future of Precision Oncology Through Integrated Genomics: How Princess Máxima Center Changes the Paradigm",sent:14888,real_opens:868,unique_real_clicks:57,or_pct:5.83,ctr:0.383},
+  {client:"BD",type:"Webinar",date:"2026-01-27",subject:"Genome-scale Functional Mapping of Immune Disease Variants with CRISPR and Single-Cell RNA-Seq",sent:15021,real_opens:1074,unique_real_clicks:47,or_pct:7.15,ctr:0.313},
+  {client:"Vivosim",type:"Webinar",date:"2026-01-28",subject:"The NAM Era of Toxicology: Regulatory Momentum and Human-Based Insights for ADC Safety",sent:12456,real_opens:668,unique_real_clicks:25,or_pct:5.36,ctr:0.201},
+  {client:"Illumina",type:"Webinar",date:"2026-01-28",subject:"Scaling NGS at Core Labs With Novel High-Throughput Sequencer Innovations",sent:15041,real_opens:1105,unique_real_clicks:120,or_pct:7.35,ctr:0.798},
+  {client:"Seqone",type:"Webinar",date:"2026-01-28",subject:"Beyond the Black Box: A Framework for Evaluating Clinical Bioinformatics Platforms in 2026",sent:12553,real_opens:454,unique_real_clicks:28,or_pct:3.62,ctr:0.223},
+  {client:"Mailing #275 01",type:"Webinar",date:"2026-01-28",subject:"Educational Resources From Our Partners",sent:19609,real_opens:1288,unique_real_clicks:73,or_pct:6.57,ctr:0.372},
+  {client:"Topic Takeover - KS - Agilent Genetic Testing",type:"Webinar",date:"2026-01-28",subject:"Recent News in Genetic Testing",sent:5049,real_opens:418,unique_real_clicks:51,or_pct:8.28,ctr:1.01},
+  {client:"Biodot",type:"Webinar",date:"2026-01-29",subject:"Advances in Nanoliter-Scale PCR: Achieving High Accuracy While Reducing Costs",sent:15018,real_opens:925,unique_real_clicks:36,or_pct:6.16,ctr:0.24},
+  {client:"Seqone",type:"Webinar",date:"2026-01-29",subject:"Beyond the Black Box: A Framework for Evaluating Clinical Bioinformatics Platforms in 2026",sent:10043,real_opens:474,unique_real_clicks:18,or_pct:4.72,ctr:0.179},
+  {client:"Devyser",type:"Webinar",date:"2026-01-29",subject:"Transplant Rejection Monitoring with Cell-Free DNA Testing",sent:12553,real_opens:464,unique_real_clicks:28,or_pct:3.7,ctr:0.223},
+  {client:"Topic Takeover - KS - Neogenomics",type:"Webinar",date:"2026-01-29",subject:"Recent News in Tumor Profiling",sent:5028,real_opens:276,unique_real_clicks:51,or_pct:5.49,ctr:1.014},
+  {client:"Roche",type:"Webinar",date:"2026-02-02",subject:"Whole-Genome and Whole-Transcriptome Sequencing at the Princess Máxima Center for Pediatric Oncology",sent:15031,real_opens:988,unique_real_clicks:85,or_pct:6.57,ctr:0.565},
+  {client:"Vivosim",type:"Webinar",date:"2026-02-03",subject:"Beyond Animal Models: The NAM Shift and Its Impact on ADC Toxicology Prediction",sent:15085,real_opens:1131,unique_real_clicks:44,or_pct:7.5,ctr:0.292},
+  {client:"Seer",type:"Webinar",date:"2026-02-04",subject:"Unbiased Plasma Proteomics Expands GWAS Insights ",sent:12534,real_opens:881,unique_real_clicks:31,or_pct:7.03,ctr:0.247},
+  {client:"SchottMF",type:"Webinar",date:"2026-02-04",subject:"Unleashing the Full Power of Microarrays with Robust Diagnostics",sent:14858,real_opens:1018,unique_real_clicks:52,or_pct:6.85,ctr:0.35},
+  {client:"Devyser",type:"Webinar",date:"2026-02-04",subject:"Transplant Rejection Monitoring with Cell-Free DNA Testing",sent:15021,real_opens:874,unique_real_clicks:56,or_pct:5.82,ctr:0.373},
+  {client:"Mailing #276 02",type:"Webinar",date:"2026-02-04",subject:"Educational Resources From Our Partners",sent:20042,real_opens:1400,unique_real_clicks:74,or_pct:6.99,ctr:0.369},
+  {client:"Illumina",type:"Webinar",date:"2026-02-05",subject:"Advances in High-Throughput Sequencing for Core Labs",sent:10023,real_opens:668,unique_real_clicks:30,or_pct:6.66,ctr:0.299},
+  {client:"BD",type:"Webinar",date:"2026-02-05",subject:"Genome-scale Functional Mapping of Immune Disease Variants with CRISPR and Single-Cell RNA-Seq",sent:15479,real_opens:1167,unique_real_clicks:38,or_pct:7.54,ctr:0.245},
+  {client:"Biodot",type:"Webinar",date:"2026-02-05",subject:"Advances in Nanoliter-Scale PCR: Achieving High Accuracy While Reducing Costs",sent:15016,real_opens:1032,unique_real_clicks:38,or_pct:6.87,ctr:0.253},
+  {client:"Roche",type:"Webinar",date:"2026-02-05",subject:"Whole-Genome and Whole-Transcriptome Sequencing at the Princess Máxima Center for Pediatric Oncology",sent:10044,real_opens:727,unique_real_clicks:102,or_pct:7.24,ctr:1.016},
+  {client:"Myriad",type:"Webinar",date:"2026-02-05",subject:"Combined Germline and Somatic Cancer Testing: Connecting Risk to Response",sent:12548,real_opens:572,unique_real_clicks:33,or_pct:4.56,ctr:0.263},
+  {client:"Seqone",type:"Webinar",date:"2026-02-05",subject:"Evaluating Clinical Bioinformatics Platforms in 2026",sent:10051,real_opens:656,unique_real_clicks:63,or_pct:6.53,ctr:0.627},
+  {client:"Qiagen",type:"Webinar",date:"2026-02-06",subject:"Population Genetics in an Era of Genomic Health",sent:12997,real_opens:717,unique_real_clicks:44,or_pct:5.52,ctr:0.339},
+  {client:"Elephas",type:"Webinar",date:"2026-02-06",subject:"A Novel Profiling Approach for Personalized Immunotherapy",sent:12282,real_opens:648,unique_real_clicks:25,or_pct:5.28,ctr:0.204},
+  {client:"Myriad",type:"Webinar",date:"2026-02-09",subject:"Combined Germline and Somatic Cancer Testing: Connecting Risk to Response",sent:15047,real_opens:980,unique_real_clicks:61,or_pct:6.51,ctr:0.405},
+  {client:"Devyser",type:"Webinar",date:"2026-02-09",subject:"Transplant Rejection Monitoring with Cell-Free DNA Testing",sent:15035,real_opens:795,unique_real_clicks:55,or_pct:5.29,ctr:0.366},
+  {client:"Vivosim",type:"Webinar",date:"2026-02-09",subject:"Nonanimal Toxicity Testing for Antibody-Drug Conjugates",sent:15046,real_opens:1092,unique_real_clicks:29,or_pct:7.26,ctr:0.193},
+  {client:"Biodot",type:"Webinar",date:"2026-02-10",subject:"Advances in Nanoliter-Scale PCR: Achieving High Accuracy While Reducing Costs",sent:15049,real_opens:1036,unique_real_clicks:102,or_pct:6.88,ctr:0.678},
+  {client:"Seqone",type:"Webinar",date:"2026-02-10",subject:"Clinical Bioinformatics – Evaluating Platforms and Partners in 2026",sent:15028,real_opens:803,unique_real_clicks:36,or_pct:5.34,ctr:0.24},
+  {client:"BD",type:"Webinar",date:"2026-02-11",subject:"Genome-scale Functional Mapping of Immune Disease Variants with CRISPR and Single-Cell RNA-Seq",sent:10027,real_opens:779,unique_real_clicks:75,or_pct:7.77,ctr:0.748},
+  {client:"Elephas",type:"Webinar",date:"2026-02-11",subject:"A Novel Profiling Approach for Personalized Immunotherapy",sent:12531,real_opens:598,unique_real_clicks:40,or_pct:4.77,ctr:0.319},
+  {client:"Seer",type:"Webinar",date:"2026-02-11",subject:"Unbiased Plasma Proteomics Expands GWAS Insights ",sent:6514,real_opens:807,unique_real_clicks:147,or_pct:12.39,ctr:2.257},
+  {client:"Mailing #277 02",type:"Webinar",date:"2026-02-11",subject:"Educational Resources From Our Partners",sent:20020,real_opens:1339,unique_real_clicks:94,or_pct:6.69,ctr:0.47},
+  {client:"SchottMF",type:"Webinar",date:"2026-02-12",subject:"Unleashing the Full Power of Microarrays with Robust Diagnostics",sent:10030,real_opens:753,unique_real_clicks:69,or_pct:7.51,ctr:0.688},
+  {client:"Myriad",type:"Webinar",date:"2026-02-12",subject:"Connecting Cancer Risk Assessment and Treatment Selection Testing",sent:15019,real_opens:1109,unique_real_clicks:56,or_pct:7.38,ctr:0.373},
+  {client:"Seer",type:"Webinar",date:"2026-02-12",subject:"Unbiased Plasma Proteomics Expands GWAS Insights ",sent:10039,real_opens:723,unique_real_clicks:22,or_pct:7.2,ctr:0.219},
+  {client:"Devyser",type:"Webinar",date:"2026-02-12",subject:"Transplant Rejection Monitoring with Cell-Free DNA Testing",sent:13567,real_opens:769,unique_real_clicks:57,or_pct:5.67,ctr:0.42},
+  {client:"Qiagen",type:"Webinar",date:"2026-02-12",subject:"Population Genetics in an Era of Genomic Health",sent:12536,real_opens:738,unique_real_clicks:36,or_pct:5.89,ctr:0.287},
+  {client:"Vivosim",type:"Webinar",date:"2026-02-12",subject:"Nonanimal Toxicity Testing for Antibody-Drug Conjugates",sent:15499,real_opens:1087,unique_real_clicks:32,or_pct:7.01,ctr:0.206},
+  {client:"Topic Takeover - KS - JJ",type:"Webinar",date:"2026-02-12",subject:"Recent News in Cancer Biomarker Testing",sent:5496,real_opens:324,unique_real_clicks:59,or_pct:5.9,ctr:1.074},
+  {client:"Vivosim",type:"Webinar",date:"2026-02-13",subject:"Final Chance to Register: Nonanimal Toxicity Testing for Antibody-Drug Conjugates",sent:10058,real_opens:683,unique_real_clicks:22,or_pct:6.79,ctr:0.219},
+  {client:"Qiagen",type:"Webinar",date:"2026-02-17",subject:"Population Genetics in an Era of Genomic Health",sent:15027,real_opens:1092,unique_real_clicks:83,or_pct:7.27,ctr:0.552},
+  {client:"Devyser",type:"Webinar",date:"2026-02-17",subject:"Transplant Rejection Monitoring with Cell-Free DNA Testing",sent:10046,real_opens:538,unique_real_clicks:40,or_pct:5.36,ctr:0.398},
+  {client:"Elephas",type:"Webinar",date:"2026-02-17",subject:"A Novel Profiling Approach for Personalized Immunotherapy",sent:14884,real_opens:821,unique_real_clicks:60,or_pct:5.52,ctr:0.403},
+  {client:"Topic Takeover - KS - Illumina SeqApp",type:"Webinar",date:"2026-02-17",subject:"Recent News in Sequencing Applications",sent:5504,real_opens:440,unique_real_clicks:45,or_pct:7.99,ctr:0.818},
+  {client:"Myriad",type:"Webinar",date:"2026-02-18",subject:"Connecting Cancer Risk Assessment and Treatment Selection Testing",sent:15023,real_opens:949,unique_real_clicks:58,or_pct:6.32,ctr:0.386},
+  {client:"SchottMF",type:"Webinar",date:"2026-02-18",subject:"Unleashing the Full Power of Microarrays with Robust Diagnostics",sent:15021,real_opens:931,unique_real_clicks:48,or_pct:6.2,ctr:0.32},
+  {client:"Seer",type:"Webinar",date:"2026-02-18",subject:"Unbiased Plasma Proteomics Expands GWAS Insights ",sent:10036,real_opens:636,unique_real_clicks:19,or_pct:6.34,ctr:0.189},
+  {client:"Mailing #278 02",type:"Webinar",date:"2026-02-18",subject:"Educational Resources From Our Partners",sent:20039,real_opens:1229,unique_real_clicks:82,or_pct:6.13,ctr:0.409},
+  {client:"Seqone",type:"Webinar",date:"2026-02-19",subject:"Clinical Bioinformatics – Evaluating Platforms and Partners in 2026",sent:15031,real_opens:778,unique_real_clicks:56,or_pct:5.18,ctr:0.373},
+  {client:"Biodot",type:"Webinar",date:"2026-02-19",subject:"Advances in Nanoliter-Scale PCR: Achieving High Accuracy While Reducing Costs",sent:15011,real_opens:1021,unique_real_clicks:57,or_pct:6.8,ctr:0.38},
+  {client:"Devyser",type:"Webinar",date:"2026-02-19",subject:"Last Chance to Register: Transplant Rejection Monitoring with Cell-Free DNA Testing",sent:10309,real_opens:507,unique_real_clicks:45,or_pct:4.92,ctr:0.437},
+  {client:"Myriad",type:"Webinar",date:"2026-02-24",subject:"Last Chance to Register: Connecting Cancer Risk Assessment and Treatment Selection Testing",sent:14895,real_opens:919,unique_real_clicks:73,or_pct:6.17,ctr:0.49},
+  {client:"Seer",type:"Webinar",date:"2026-02-24",subject:"Expanding GWAS Insights with Scalable, Unbiased Plasma Proteomics",sent:15028,real_opens:1063,unique_real_clicks:27,or_pct:7.07,ctr:0.18},
+  {client:"Topic Takeover - KS - Agilent Inherited Disease",type:"Webinar",date:"2026-02-24",subject:"Recent News in Inherited Disease Research",sent:5050,real_opens:378,unique_real_clicks:41,or_pct:7.49,ctr:0.812},
+  {client:"Illumina",type:"Webinar",date:"2026-02-25",subject:"Proteogenomic Changes Associated With Spaceflight",sent:12543,real_opens:706,unique_real_clicks:37,or_pct:5.63,ctr:0.295},
+  {client:"Qiagen",type:"Webinar",date:"2026-02-25",subject:"Population Genetics in an Era of Genomic Health",sent:10034,real_opens:657,unique_real_clicks:50,or_pct:6.55,ctr:0.498},
+  {client:"Mailing #279 02",type:"Webinar",date:"2026-02-25",subject:"Educational Resources From Our Partners",sent:20039,real_opens:1287,unique_real_clicks:68,or_pct:6.42,ctr:0.339},
+  {client:"Elephas",type:"Webinar",date:"2026-02-26",subject:"Improved Prediction of Immunotherapy Response via Ex Vivo Cytokine Profiling",sent:9945,real_opens:604,unique_real_clicks:53,or_pct:6.07,ctr:0.533},
+  {client:"Precision Cell",type:"Webinar",date:"2026-02-26",subject:" Unlocking Single-Cell Insights from FFPE Samples",sent:12533,real_opens:727,unique_real_clicks:45,or_pct:5.8,ctr:0.359},
+  {client:"Topic Takeover - KS - Neogenomics",type:"Webinar",date:"2026-02-26",subject:"Recent News in Tumor Profiling",sent:5044,real_opens:269,unique_real_clicks:34,or_pct:5.33,ctr:0.674},
+  {client:"DNANexus",type:"Webinar",date:"2026-02-27",subject:"Resolving Challenging Genetic Variants in Carrier Screening Using Long-Read Technology",sent:12547,real_opens:695,unique_real_clicks:33,or_pct:5.54,ctr:0.263},
+  {client:"Elephas",type:"Webinar",date:"2026-03-02",subject:"Last Chance to Register: Improved Prediction of Immunotherapy Response via Ex Vivo Cytokine Profiling",sent:10054,real_opens:588,unique_real_clicks:75,or_pct:5.85,ctr:0.746},
+  {client:"TwistBioUltima",type:"Webinar",date:"2026-03-02",subject:"Scaling High-Throughput Genotyping: Gene by Gene’s Transition from Microarrays to NGS",sent:12555,real_opens:696,unique_real_clicks:46,or_pct:5.54,ctr:0.366},
+  {client:"Precision Cell",type:"Webinar",date:"2026-03-03",subject:" Unlocking Single-Cell Insights from FFPE Samples",sent:12534,real_opens:819,unique_real_clicks:46,or_pct:6.53,ctr:0.367},
+  {client:"Illumina",type:"Webinar",date:"2026-03-03",subject:"Proteogenomic Changes Associated With Spaceflight",sent:10040,real_opens:661,unique_real_clicks:30,or_pct:6.58,ctr:0.299},
+  {client:"Mailing #280 03",type:"Webinar",date:"2026-03-04",subject:"Educational Resources From Our Partners",sent:20029,real_opens:1253,unique_real_clicks:76,or_pct:6.26,ctr:0.379},
+  {client:"Topic Takeover - KS -  IlluminaMulti March 4",type:"Webinar",date:"2026-03-04",subject:"Recent News in Multiomics",sent:5096,real_opens:386,unique_real_clicks:30,or_pct:7.57,ctr:0.589},
+  {client:"Topic Takeover - KS - SingularGenomics",type:"Webinar",date:"2026-03-04",subject:"Recent News in Digital Pathology and Spatial Biology",sent:5094,real_opens:425,unique_real_clicks:41,or_pct:8.34,ctr:0.805},
+  {client:"DNANexus",type:"Webinar",date:"2026-03-05",subject:"Resolving Challenging Genetic Variants in Carrier Screening Using Long-Read Technology",sent:12532,real_opens:727,unique_real_clicks:42,or_pct:5.8,ctr:0.335},
+  {client:"Qiagen",type:"Webinar",date:"2026-03-05",subject:"Population Genetics in an Era of Genomic Health",sent:10038,real_opens:661,unique_real_clicks:94,or_pct:6.58,ctr:0.936},
+  {client:"TwistBioUltima",type:"Webinar",date:"2026-03-05",subject:"Modernizing High-Throughput Workflows: A Case Study on Transitioning from Microarrays to NGS",sent:12532,real_opens:693,unique_real_clicks:26,or_pct:5.53,ctr:0.207},
+  {client:"TwistBioUltima",type:"Webinar",date:"2026-03-10",subject:"Modernizing High-Throughput Workflows: A Case Study on Transitioning from Microarrays to NGS",sent:15030,real_opens:1005,unique_real_clicks:58,or_pct:6.69,ctr:0.386},
+  {client:"Precision Cell",type:"Webinar",date:"2026-03-10",subject:" Unlocking Single-Cell Insights from FFPE Samples",sent:15037,real_opens:902,unique_real_clicks:68,or_pct:6.0,ctr:0.452},
+  {client:"Illumina",type:"Webinar",date:"2026-03-10",subject:"Proteogenomic Changes Associated With Spaceflight",sent:6761,real_opens:690,unique_real_clicks:100,or_pct:10.21,ctr:1.479},
+  {client:"Topic Takeover - KS - Illumina SeqApp",type:"Webinar",date:"2026-03-10",subject:"Recent News in Sequencing Applications",sent:5055,real_opens:418,unique_real_clicks:21,or_pct:8.27,ctr:0.415},
+  {client:"DNANexus",type:"Webinar",date:"2026-03-11",subject:"Resolving Challenging Genetic Variants in Carrier Screening Using Long-Read Technology",sent:15023,real_opens:1031,unique_real_clicks:72,or_pct:6.86,ctr:0.479},
+  {client:"Mailing #281 03",type:"Webinar",date:"2026-03-11",subject:"Educational Resources From Our Partners",sent:20033,real_opens:1161,unique_real_clicks:72,or_pct:5.8,ctr:0.359},
+  {client:"Illumina",type:"Webinar",date:"2026-03-12",subject:"Proteogenomic Changes Associated With Spaceflight",sent:10045,real_opens:610,unique_real_clicks:25,or_pct:6.07,ctr:0.249},
+  {client:"OxfordNano April 15",type:"Webinar",date:"2026-03-12",subject:"Advancing Carrier Screening and Diagnostic Applications Research With Long-Read Sequencing ",sent:12536,real_opens:633,unique_real_clicks:57,or_pct:5.05,ctr:0.455},
+  {client:"StandardBio April 8",type:"Webinar",date:"2026-03-12",subject:"Same-Slide Spatial RNA and Protein Profiling of FFPE Sections",sent:12537,real_opens:677,unique_real_clicks:44,or_pct:5.4,ctr:0.351},
+  {client:"Topic Takeover - KS - BrukerSpatial",type:"Webinar",date:"2026-03-12",subject:"Recent News in Spatial Transcriptomics and Proteomics",sent:5050,real_opens:393,unique_real_clicks:51,or_pct:7.78,ctr:1.01},
+  {client:"Devyser April 7",type:"Webinar",date:"2026-03-13",subject:"The Genetics behind Familial Hypercholesterolemia: From Early Detection to Targeted Therapies",sent:12553,real_opens:677,unique_real_clicks:54,or_pct:5.39,ctr:0.43},
+  {client:"DNANexus",type:"Webinar",date:"2026-03-17",subject:"Resolving Challenging Genetic Variants in Carrier Screening Using Long-Read Technology",sent:10051,real_opens:708,unique_real_clicks:88,or_pct:7.04,ctr:0.876},
+  {client:"Illumina",type:"Webinar",date:"2026-03-17",subject:"Spaceflight-Associated Gene Expression: Understanding the Mechanisms of Physiological Resilience",sent:10039,real_opens:706,unique_real_clicks:40,or_pct:7.03,ctr:0.398},
+  {client:"LGC",type:"Webinar",date:"2026-03-17",subject:"Routes for Standardizing Solid Tumor and Liquid Biopsy Genomic Testing",sent:12530,real_opens:628,unique_real_clicks:26,or_pct:5.01,ctr:0.208},
+  {client:"StandardBio April 8 Email protregs",type:"Webinar",date:"2026-03-17",subject:"Same-Slide Spatial RNA and Protein Profiling of FFPE Sections",sent:6757,real_opens:748,unique_real_clicks:126,or_pct:11.07,ctr:1.865},
+  {client:"Topic Takeover - KS - Agilent Inherited Disease",type:"Webinar",date:"2026-03-17",subject:"Recent News in Inherited Disease Research",sent:5049,real_opens:416,unique_real_clicks:41,or_pct:8.24,ctr:0.812},
+  {client:"Topic Takeover - KS - Hamamatsu",type:"Webinar",date:"2026-03-17",subject:"Recent News in Immunotherapy Discovery & Development",sent:5052,real_opens:404,unique_real_clicks:34,or_pct:8.0,ctr:0.673},
+  {client:"Topic Takeover - KS - TFS CDx",type:"Webinar",date:"2026-03-17",subject:"Recent CDx News and NGS-based biomarker testing",sent:5050,real_opens:389,unique_real_clicks:37,or_pct:7.7,ctr:0.733},
+  {client:"Precision Cell",type:"Webinar",date:"2026-03-18",subject:" Unlocking Single-Cell Insights from FFPE Samples",sent:15022,real_opens:1014,unique_real_clicks:60,or_pct:6.75,ctr:0.399},
+  {client:"StandardBio April 8",type:"Webinar",date:"2026-03-18",subject:"Same-Slide Spatial RNA and Protein Profiling of FFPE Sections",sent:12542,real_opens:715,unique_real_clicks:29,or_pct:5.7,ctr:0.231},
+  {client:"Devyser April 7",type:"Webinar",date:"2026-03-18",subject:"The Genetics behind Familial Hypercholesterolemia: From Early Detection to Targeted Therapies",sent:12523,real_opens:755,unique_real_clicks:52,or_pct:6.03,ctr:0.415},
+  {client:"Devyser April 7 Email",type:"Webinar",date:"2026-03-18",subject:"The Genetics behind Familial Hypercholesterolemia: From Early Detection to Targeted Therapies",sent:205,real_opens:35,unique_real_clicks:8,or_pct:17.07,ctr:3.902},
+  {client:"Mailing #282 03",type:"Webinar",date:"2026-03-18",subject:"Educational Resources From Our Partners",sent:20032,real_opens:1330,unique_real_clicks:61,or_pct:6.64,ctr:0.305},
+  {client:"Seqone April 22",type:"Webinar",date:"2026-03-19",subject:"Implementing a Scalable Automated CGP Workflow in Routine Clinical Practice",sent:12527,real_opens:541,unique_real_clicks:26,or_pct:4.32,ctr:0.208},
+  {client:"TwistBioUltima",type:"Webinar",date:"2026-03-19",subject:"Transitioning a High-Throughput Genotyping Lab from Microarrays to NGS",sent:19767,real_opens:1452,unique_real_clicks:115,or_pct:7.35,ctr:0.582},
+  {client:"OxfordNano April 15",type:"Webinar",date:"2026-03-19",subject:"Advancing Carrier Screening and Diagnostic Applications Research With Long-Read Sequencing ",sent:12533,real_opens:728,unique_real_clicks:33,or_pct:5.81,ctr:0.263},
+  {client:"LGC",type:"Webinar",date:"2026-03-19",subject:"Routes for Standardizing Solid Tumor and Liquid Biopsy Genomic Testing",sent:14029,real_opens:868,unique_real_clicks:88,or_pct:6.19,ctr:0.627},
+  {client:"Precision Cell",type:"Webinar",date:"2026-03-20",subject:"Last Chancer to Register:  Unlocking Single-Cell Insights from FFPE Samples",sent:10048,real_opens:643,unique_real_clicks:74,or_pct:6.4,ctr:0.736},
+  {client:"DNANexus",type:"Webinar",date:"2026-03-23",subject:"Last Chance to Register: Resolving Challenging Genetic Variants in Carrier Screening Using Long-Read Technology",sent:10041,real_opens:648,unique_real_clicks:46,or_pct:6.45,ctr:0.458},
+  {client:"TwistBioUltima",type:"Webinar",date:"2026-03-23",subject:"Last Chance to Register: Transitioning a High-Throughput Genotyping Lab from Microarrays to NGS",sent:10040,real_opens:737,unique_real_clicks:93,or_pct:7.34,ctr:0.926},
+  {client:"Devyser April 7",type:"Webinar",date:"2026-03-24",subject:"The Genetics behind Familial Hypercholesterolemia: From Early Detection to Targeted Therapies",sent:15036,real_opens:996,unique_real_clicks:65,or_pct:6.62,ctr:0.432},
+  {client:"StandardBio April 8",type:"Webinar",date:"2026-03-24",subject:"Same-Slide Spatial RNA and Protein Profiling of FFPE Sections",sent:10030,real_opens:723,unique_real_clicks:33,or_pct:7.21,ctr:0.329},
+  {client:"LGC",type:"Webinar",date:"2026-03-24",subject:"Routes for Standardizing Solid Tumor and Liquid Biopsy Genomic Testing",sent:15016,real_opens:885,unique_real_clicks:135,or_pct:5.89,ctr:0.899},
+  {client:"Illumina",type:"Webinar",date:"2026-03-25",subject:"Understanding Spaceflight-Associated Physiological Stress With High-Throughput Proteomics",sent:4331,real_opens:230,unique_real_clicks:43,or_pct:5.31,ctr:0.993},
+  {client:"OxfordNano April 15",type:"Webinar",date:"2026-03-25",subject:"Advancing Carrier Screening and Diagnostic Applications Research With Long-Read Sequencing ",sent:15015,real_opens:967,unique_real_clicks:45,or_pct:6.44,ctr:0.3},
+  {client:"Seqone April 22",type:"Webinar",date:"2026-03-25",subject:"Implementing a Scalable Automated CGP Workflow in Routine Clinical Practice",sent:15036,real_opens:623,unique_real_clicks:36,or_pct:4.14,ctr:0.239},
+  {client:"Mailing #283 03",type:"Webinar",date:"2026-03-25",subject:"Educational Resources From Our Partners",sent:20015,real_opens:1264,unique_real_clicks:88,or_pct:6.32,ctr:0.44},
+  {client:"LGC",type:"Webinar",date:"2026-03-26",subject:"Standardizing Liquid Biopsy and Solid Tumor Genomic Testing",sent:15011,real_opens:836,unique_real_clicks:85,or_pct:5.57,ctr:0.566},
+  {client:"StandardBio April 8",type:"Webinar",date:"2026-03-30",subject:"An Integrated Spatial Multi-Omic Workflow for Sequential RNA and Protein Profiling in FFPE Sections",sent:11057,real_opens:721,unique_real_clicks:26,or_pct:6.52,ctr:0.235},
+  {client:"Devyser April 7",type:"Webinar",date:"2026-03-30",subject:"Guiding Both Detection and Treatment With Genetic Testing in Familial Hypercholesterolaemia",sent:15027,real_opens:1053,unique_real_clicks:43,or_pct:7.01,ctr:0.286},
+  {client:"OxfordNano April 15",type:"Webinar",date:"2026-03-31",subject:"Advancing Carrier Screening and Diagnostic Applications Research With Long-Read Sequencing ",sent:15041,real_opens:1048,unique_real_clicks:113,or_pct:6.97,ctr:0.751},
+  {client:"TwistBio April 27",type:"Webinar",date:"2026-03-31",subject:"Achieving Rapid, Low-Input CGP Across Tissue and Liquid Biopsy for Oncology Research at the Garvan Institute",sent:12544,real_opens:573,unique_real_clicks:40,or_pct:4.57,ctr:0.319},
+  {client:"Seqone April 22",type:"Webinar",date:"2026-03-31",subject:"Implementing a Scalable Automated CGP Workflow in Routine Clinical Practice",sent:15032,real_opens:766,unique_real_clicks:51,or_pct:5.1,ctr:0.339},
+  {client:"FMI",type:"Webinar",date:"2026-03-31",subject:"Panel Discussion: Enabling Smarter Clinical Trials Through Strategic Liquid Biopsy Biomarkers",sent:12546,real_opens:613,unique_real_clicks:39,or_pct:4.89,ctr:0.311},
+  {client:"Topic Takeover - KS - TFS NGS Cancer",type:"Webinar",date:"2026-03-31",subject:"Recent News on NGS in Cancer",sent:5048,real_opens:300,unique_real_clicks:53,or_pct:5.94,ctr:1.05},
+  {client:"Qiagen",type:"Webinar",date:"2026-04-01",subject:"Disrupting Healthcare Using Deep Data, Remote Monitoring, and AI",sent:12542,real_opens:720,unique_real_clicks:48,or_pct:5.74,ctr:0.383},
+  {client:"Mailing #284 04",type:"Webinar",date:"2026-04-01",subject:"Educational Resources From Our Partners",sent:20028,real_opens:1367,unique_real_clicks:75,or_pct:6.83,ctr:0.374},
+  {client:"StandardBio April 8",type:"Webinar",date:"2026-04-02",subject:"Last Chance to Register: Same-Slide Spatial RNA and Protein Profiling of FFPE Sections",sent:12830,real_opens:408,unique_real_clicks:47,or_pct:3.18,ctr:0.366},
+  {client:"Devyser April 7",type:"Webinar",date:"2026-04-02",subject:"Last Chance to Register: Guiding Both Detection and Treatment With Genetic Testing in Familial Hypercholesterolaemia",sent:10045,real_opens:747,unique_real_clicks:57,or_pct:7.44,ctr:0.567},
+  {client:"FMI",type:"Webinar",date:"2026-04-02",subject:"Panel Discussion: Enabling Smarter Clinical Trials Through Strategic Liquid Biopsy Biomarkers",sent:15027,real_opens:851,unique_real_clicks:57,or_pct:5.66,ctr:0.379},
+  {client:"Qiagen",type:"Webinar",date:"2026-04-07",subject:"Disrupting Healthcare Using Deep Data, Remote Monitoring, and AI",sent:15022,real_opens:1004,unique_real_clicks:68,or_pct:6.68,ctr:0.453},
+  {client:"FMI",type:"Webinar",date:"2026-04-07",subject:"Panel Discussion: Enabling Smarter Clinical Trials Through Strategic Liquid Biopsy Biomarkers",sent:15023,real_opens:827,unique_real_clicks:87,or_pct:5.5,ctr:0.579},
+  {client:"Qiagen",type:"Webinar",date:"2026-04-07",subject:"Disrupting Healthcare Using Deep Data, Remote Monitoring, and AI",sent:2679,real_opens:428,unique_real_clicks:110,or_pct:15.98,ctr:4.106},
+  {client:"Seqone April 22",type:"Webinar",date:"2026-04-08",subject:"Implementing a Scalable Automated CGP Workflow in Routine Clinical Practice",sent:10051,real_opens:610,unique_real_clicks:65,or_pct:6.07,ctr:0.647},
+  {client:"TwistBio April 27",type:"Webinar",date:"2026-04-08",subject:"How the Garvan Institute Achieved Rapid, Low-Input CGP Across Tissue and Liquid Biopsy",sent:15023,real_opens:766,unique_real_clicks:57,or_pct:5.1,ctr:0.379},
+  {client:"Mailing #285 04",type:"Webinar",date:"2026-04-08",subject:"Educational Resources From Our Partners",sent:20032,real_opens:1258,unique_real_clicks:79,or_pct:6.28,ctr:0.394},
+  {client:"OxfordNano April 15",type:"Webinar",date:"2026-04-09",subject:"Last Chance to Register: Advancing Carrier Screening and Diagnostic Applications Research With Long-Read Sequencing ",sent:17576,real_opens:437,unique_real_clicks:27,or_pct:2.49,ctr:0.154},
+  {client:"IlluminaVRT",type:"Webinar",date:"2026-04-09",subject:"Virtual Roundtable: The Value of Integrating Genomic Testing Into Clinical Practice",sent:12549,real_opens:747,unique_real_clicks:45,or_pct:5.95,ctr:0.359},
+  {client:"Topic Takeover - KS - Hamamatsu April 9",type:"Webinar",date:"2026-04-09",subject:"Recent News in Immunotherapy Discovery & Development",sent:5050,real_opens:389,unique_real_clicks:27,or_pct:7.7,ctr:0.535},
+  {client:"TwistBio April 27",type:"Webinar",date:"2026-04-13",subject:"How the Garvan Institute Achieved Rapid, Low-Input CGP Across Tissue and Liquid Biopsy",sent:15035,real_opens:825,unique_real_clicks:65,or_pct:5.49,ctr:0.432},
+  {client:"Topic Takeover - KS - Agilent Inherited Disease",type:"Webinar",date:"2026-04-14",subject:"Recent News in Inherited Disease Research",sent:5047,real_opens:406,unique_real_clicks:34,or_pct:8.04,ctr:0.674},
+  {client:"Topic Takeover - KS - BrukerSpatial",type:"Webinar",date:"2026-04-14",subject:"Recent News in Spatial Transcriptomics and Proteomics",sent:5048,real_opens:381,unique_real_clicks:37,or_pct:7.55,ctr:0.733},
+  {client:"Mailing #286 04",type:"Webinar",date:"2026-04-15",subject:"Educational Resources From Our Partners",sent:20035,real_opens:1449,unique_real_clicks:94,or_pct:7.23,ctr:0.469},
+  {client:"Topic Takeover - KS - SingularGenomics",type:"Webinar",date:"2026-04-15",subject:"Recent News in Digital Pathology and Spatial Biology",sent:5050,real_opens:396,unique_real_clicks:40,or_pct:7.84,ctr:0.792},
+  {client:"Qiagen",type:"Webinar",date:"2026-04-16",subject:"Disrupting Healthcare Using Deep Data, Remote Monitoring, and AI",sent:15007,real_opens:1173,unique_real_clicks:73,or_pct:7.82,ctr:0.486},
+  {client:"FMI",type:"Webinar",date:"2026-04-16",subject:"Panel Discussion: Using Strategic Liquid Biopsy Biomarkers for Smarter Clinical Trials",sent:10035,real_opens:523,unique_real_clicks:49,or_pct:5.21,ctr:0.488},
+  {client:"TwistBio April 27",type:"Webinar",date:"2026-04-16",subject:"How the Garvan Institute Achieved Rapid, Low-Input CGP Across Tissue and Liquid Biopsy",sent:10047,real_opens:594,unique_real_clicks:56,or_pct:5.91,ctr:0.557},
+  {client:"Seqone April 22",type:"Webinar",date:"2026-04-16",subject:"Streamlining Tumor Genomic Profiling at a Hospital Reference Center With Automated Interpretation",sent:15020,real_opens:754,unique_real_clicks:52,or_pct:5.02,ctr:0.346},
+  {client:"IlluminaVRT",type:"Webinar",date:"2026-04-21",subject:"Virtual Roundtable: The Value of Integrating Genomic Testing Into Clinical Practice",sent:20027,real_opens:1237,unique_real_clicks:94,or_pct:6.18,ctr:0.469},
+  {client:"Topic Takeover - KS - TakaraBio April 21",type:"Webinar",date:"2026-04-21",subject:"Recent News in Spatial Biology",sent:5043,real_opens:401,unique_real_clicks:40,or_pct:7.95,ctr:0.793},
+  {client:"Topic Takeover - KS - Illumina SeqApp",type:"Webinar",date:"2026-04-21",subject:"Recent News in Sequencing Applications",sent:5041,real_opens:404,unique_real_clicks:43,or_pct:8.01,ctr:0.853},
+  {client:"Qiagen",type:"Webinar",date:"2026-04-22",subject:"Disrupting Healthcare Using Deep Data, Remote Monitoring, and AI",sent:10035,real_opens:609,unique_real_clicks:47,or_pct:6.07,ctr:0.468},
+  {client:"FMI",type:"Webinar",date:"2026-04-22",subject:"Using Strategic Liquid Biopsy Biomarkers for Smarter Clinical Trials",sent:10038,real_opens:560,unique_real_clicks:53,or_pct:5.58,ctr:0.528},
+  {client:"TwistBio April 27",type:"Webinar",date:"2026-04-22",subject:"How the Garvan Institute Achieved Rapid, Low-Input CGP Across Tissue and Liquid Biopsy",sent:10026,real_opens:480,unique_real_clicks:32,or_pct:4.79,ctr:0.319},
+  {client:"Mailing #287 04",type:"Webinar",date:"2026-04-22",subject:"Educational Resources From Our Partners",sent:20036,real_opens:1292,unique_real_clicks:82,or_pct:6.45,ctr:0.409},
+  {client:"IlluminaVRT",type:"Webinar",date:"2026-04-27",subject:"Panel Discussion: The Value of Integrating Genomic Testing into Clinical Practice",sent:15039,real_opens:1088,unique_real_clicks:84,or_pct:7.23,ctr:0.559},
+  {client:"Topic Takeover - KS - TFS NGS Cancer",type:"Webinar",date:"2026-04-28",subject:"Recent News on NGS in Cancer",sent:5058,real_opens:316,unique_real_clicks:55,or_pct:6.25,ctr:1.087},
+  {client:"DNANexus June 2",type:"Webinar",date:"2026-04-29",subject:"Transforming Multimodal Real-World Data Into Actionable Insights with AI",sent:12039,real_opens:533,unique_real_clicks:26,or_pct:4.43,ctr:0.216},
+  {client:"Mailing #288 04",type:"Webinar",date:"2026-04-29",subject:"Educational Resources From Our Partners",sent:20825,real_opens:1256,unique_real_clicks:51,or_pct:6.03,ctr:0.245},
+  {client:"Topic Takeover - KS - TFS CDx",type:"Webinar",date:"2026-04-29",subject:"Recent CDx News and NGS-based biomarker testing",sent:5051,real_opens:408,unique_real_clicks:30,or_pct:8.08,ctr:0.594},
+  {client:"Seqone June 4",type:"Webinar",date:"2026-04-30",subject:"AI in Rare Disease Diagnostics: Maintaining Accuracy, Compliance, and Trust",sent:12033,real_opens:650,unique_real_clicks:40,or_pct:5.4,ctr:0.332},
+  {client:"IlluminaVRT",type:"Webinar",date:"2026-04-30",subject:"Panel Discussion: The Value of Integrating Genomic Testing into Clinical Practice",sent:14953,real_opens:1078,unique_real_clicks:86,or_pct:7.21,ctr:0.575},
+  {client:"Qiagen",type:"Webinar",date:"2026-04-30",subject:"Using Big Data, Multi-Omics Technologies, and Continuous Remote Monitoring to Understand Health",sent:19202,real_opens:551,unique_real_clicks:93,or_pct:2.87,ctr:0.484},
+  {client:"Seqone June 4",type:"Webinar",date:"2026-05-05",subject:"AI in Rare Disease Diagnostics: Maintaining Accuracy, Compliance, and Trust",sent:15028,real_opens:1170,unique_real_clicks:71,or_pct:7.79,ctr:0.472},
+  {client:"Topic Takeover - KS - Illumina SeqApp",type:"Webinar",date:"2026-05-05",subject:"Recent News in Sequencing Applications",sent:5048,real_opens:417,unique_real_clicks:44,or_pct:8.26,ctr:0.872},
+  {client:"IlluminaVRT",type:"Webinar",date:"2026-05-06",subject:"Panel Discussion: The Value of Integrating Genomic Testing into Clinical Practice",sent:10039,real_opens:789,unique_real_clicks:96,or_pct:7.86,ctr:0.956},
+  {client:"Mailing #289 05",type:"Webinar",date:"2026-05-06",subject:"Educational Resources From Our Partners",sent:20043,real_opens:1276,unique_real_clicks:64,or_pct:6.37,ctr:0.319},
+  {client:"Topic Takeover - KS - SingularGenomics",type:"Webinar",date:"2026-05-06",subject:"Recent News in Digital Pathology and Spatial Biology",sent:5039,real_opens:409,unique_real_clicks:37,or_pct:8.12,ctr:0.734},
+  {client:"Topic Takeover - KS - Bruker Spatial",type:"Webinar",date:"2026-05-06",subject:"Recent News in Spatial Transcriptomics and Proteomics",sent:5050,real_opens:427,unique_real_clicks:33,or_pct:8.46,ctr:0.653},
+  {client:"DNANexus June 2",type:"Webinar",date:"2026-05-07",subject:"Transforming Multimodal Real-World Data Into Actionable Insights with AI",sent:14996,real_opens:750,unique_real_clicks:38,or_pct:5.0,ctr:0.253},
+  {client:"Topic Takeover - KS - Agilent Inherited Disease",type:"Webinar",date:"2026-05-11",subject:"Recent News in Inherited Disease Research",sent:5042,real_opens:400,unique_real_clicks:35,or_pct:7.93,ctr:0.694},
+  {client:"Topic Takeover - KS - ExactSciences MRD",type:"Webinar",date:"2026-05-12",subject:"Recent News in MRD Testing",sent:7535,real_opens:436,unique_real_clicks:63,or_pct:5.79,ctr:0.836},
+  {client:"Webinar-Seqone-June4-Email3-2026",type:"Webinar",date:"2026-05-13",subject:"AI in Rare Disease Diagnostics: Maintaining Accuracy, Compliance, and Trust",sent:15023,real_opens:954,unique_real_clicks:77,or_pct:6.35,ctr:0.513},
+  {client:"Webinar-DNANexus-June2-Email3-2026",type:"Webinar",date:"2026-05-13",subject:"Transforming Multimodal Real-World Data Into Actionable Insights with AI",sent:15013,real_opens:769,unique_real_clicks:57,or_pct:5.12,ctr:0.38},
+  {client:"Mailing #290 05",type:"Webinar",date:"2026-05-13",subject:"Educational Resources From Our Partners",sent:20006,real_opens:1280,unique_real_clicks:52,or_pct:6.4,ctr:0.26},
+  {client:"Webinar - AG - Singular Genomics June 15",type:"Webinar",date:"2026-05-18",subject:"A 1,000-Patient Spatial Multiomics Atlas to Predict Where Colorectal Cancer Will Spread",sent:16540,real_opens:1096,unique_real_clicks:58,or_pct:6.63,ctr:0.351},
+  {client:"Webinar - AG - DNANexus June 2",type:"Webinar",date:"2026-05-19",subject:"Deploying AI-Based Biomarkers Derived from Real-World Data in Precision Oncology",sent:10549,real_opens:476,unique_real_clicks:50,or_pct:4.51,ctr:0.474},
+  {client:"Webinar - AG - Seqone June 4",type:"Webinar",date:"2026-05-19",subject:"AI in Rare Disease Genomics: From Variant Prioritization to Regulatory Readiness",sent:15532,real_opens:935,unique_real_clicks:65,or_pct:6.02,ctr:0.418},
+  {client:"Webinar - AG - Bruker June 23",type:"Webinar",date:"2026-05-19",subject:"Advancing T-Cell Therapy Discovery and Translation Using Real-Time Single-Cell Functional Biology",sent:16540,real_opens:1060,unique_real_clicks:37,or_pct:6.41,ctr:0.224},
+  {client:"Webinar - AG - Roche June 12",type:"Webinar",date:"2026-05-19",subject:"Molecular Point-of-Care Testing 2.0: Bridging the Gap Between Urgent Care and the Hospital Lab",sent:16536,real_opens:875,unique_real_clicks:84,or_pct:5.29,ctr:0.508},
+  {client:"Topic Takeover - Illumina SeqApp",type:"Webinar",date:"2026-05-19",subject:"Recent News in Sequencing Applications",sent:5034,real_opens:340,unique_real_clicks:22,or_pct:6.75,ctr:0.437},
+  {client:"Topic Takeover - Exact Sciences MRD",type:"Webinar",date:"2026-05-19",subject:"Recent News in MRD Testing",sent:7542,real_opens:389,unique_real_clicks:63,or_pct:5.16,ctr:0.835},
+  {client:"Mailing #291 05",type:"Webinar",date:"2026-05-20",subject:"Educational Resources From Our Partners",sent:20264,real_opens:1234,unique_real_clicks:81,or_pct:6.09,ctr:0.4}
+];
+
+/* ═══════════════════════════════════════════════════════════
+   CCB DATA
+═══════════════════════════════════════════════════════════ */
+const ccbCampaigns=[
+  {client:"Clearstead",type:"Whitepaper",date:"2026-01-13",subject:"Private Markets and the next decade of portfolio strategy",sent:26848,real_opens:1679,unique_real_clicks:55,or_pct:6.25,ctr:0.205},
+  {client:"Clearstead",type:"Whitepaper",date:"2026-01-22",subject:"Don't make this hidden investment mistake",sent:29818,real_opens:1992,unique_real_clicks:50,or_pct:6.68,ctr:0.168},
+  {client:"Meeting&EventsGuide",type:"Guide",date:"2026-02-10",subject:"Plan the perfect business gathering",sent:77864,real_opens:3899,unique_real_clicks:142,or_pct:5.01,ctr:0.182},
+  {client:"USBank",type:"Whitepaper",date:"2026-02-17",subject:"Save time and cash on vendor payments",sent:38334,real_opens:2002,unique_real_clicks:45,or_pct:5.22,ctr:0.117},
+  {client:"USBank",type:"Whitepaper",date:"2026-02-26",subject:"An operations solution that pays you back",sent:38217,real_opens:1891,unique_real_clicks:39,or_pct:4.95,ctr:0.102},
+  {client:"Meeting&EventsGuide",type:"Guide",date:"2026-03-17",subject:"Chicago’s guide to standout business events",sent:77927,real_opens:3709,unique_real_clicks:167,or_pct:4.76,ctr:0.214},
+  {client:"EisnerAmper",type:"Whitepaper",date:"2026-04-07",subject:"CRE market shifts are here. Are you ready for 2026?",sent:38743,real_opens:2011,unique_real_clicks:51,or_pct:5.19,ctr:0.132},
+  {client:"EisnerAmper",type:"Whitepaper",date:"2026-04-20",subject:"CRE market shifts are here. Are you ready for 2026?",sent:38918,real_opens:1882,unique_real_clicks:50,or_pct:4.84,ctr:0.128},
+  {client:"USBank",type:"Whitepaper",date:"2026-04-22",subject:"A smarter way to manage business spending",sent:38493,real_opens:1865,unique_real_clicks:35,or_pct:4.85,ctr:0.091},
+  {client:"JLL",type:"Whitepaper",date:"2026-04-28",subject:"Why your workplace strategy may be failing",sent:38399,real_opens:1859,unique_real_clicks:73,or_pct:4.84,ctr:0.19},
+  {client:"USBank",type:"Whitepaper",date:"2026-05-01",subject:"A quick check on your company card program",sent:38946,real_opens:1903,unique_real_clicks:44,or_pct:4.89,ctr:0.113},
+  {client:"Clearstead",type:"Whitepaper",date:"2026-05-04",subject:"Before and after: Beyond generational wealth transfer",sent:38278,real_opens:1994,unique_real_clicks:74,or_pct:5.21,ctr:0.193},
+  {client:"GivingGuide",type:"Whitepaper",date:"2026-05-05",subject:"Crain’s 2026 Giving Guide",sent:83508,real_opens:4139,unique_real_clicks:244,or_pct:4.96,ctr:0.292},
+  {client:"JLL",type:"Whitepaper",date:"2026-05-12",subject:"75% of organizations are misaligned on workplace policy",sent:65725,real_opens:4600,unique_real_clicks:438,or_pct:7.0,ctr:0.666},
+  {client:"WhitePaper2-Clearstead",type:"Whitepaper",date:"2026-05-14",subject:"Before and after: Beyond generational wealth transfer",sent:65363,real_opens:4583,unique_real_clicks:336,or_pct:7.01,ctr:0.514}
+];
+
+/* ═══════════════════════════════════════════════════════════
+   CDB DATA
+═══════════════════════════════════════════════════════════ */
+const cdbCampaigns=[
+  {client:"Meeting&EventsGuide",type:"Guide",date:"2026-02-10",subject:"Plan the perfect business gathering",sent:32443,real_opens:2043,unique_real_clicks:165,or_pct:6.3,ctr:0.509},
+  {client:"LuxuryHomeSpotlight",type:"Custom",date:"2026-02-16",subject:"Only four residences remain",sent:28629,real_opens:3299,unique_real_clicks:531,or_pct:11.52,ctr:1.855},
+  {client:"LuxuryHomeSpotlight",type:"Custom",date:"2026-03-16",subject:"Only three residences remain",sent:28315,real_opens:3043,unique_real_clicks:388,or_pct:10.75,ctr:1.37},
+  {client:"Meeting&EventsGuide",type:"Guide",date:"2026-03-18",subject:"Detroit’s guide to standout business events",sent:32292,real_opens:1926,unique_real_clicks:152,or_pct:5.96,ctr:0.471},
+  {client:"Clearstead",type:"Whitepaper",date:"2026-04-07",subject:"Top 3 tips to plan for your business exit",sent:16061,real_opens:876,unique_real_clicks:34,or_pct:5.45,ctr:0.212},
+  {client:"LuxuryHomeSpotlight",type:"Custom",date:"2026-04-13",subject:"Only three residences remain",sent:28006,real_opens:3082,unique_real_clicks:316,or_pct:11.0,ctr:1.128},
+  {client:"Clearstead",type:"Whitepaper",date:"2026-04-20",subject:"Planning to sell your business?",sent:16126,real_opens:931,unique_real_clicks:34,or_pct:5.77,ctr:0.211},
+  {client:"LuxuryHomeSpotlight",type:"Custom",date:"2026-04-27",subject:"Only three residences remain",sent:27905,real_opens:3023,unique_real_clicks:291,or_pct:10.83,ctr:1.043}
+];
+
+/* ═══════════════════════════════════════════════════════════
+   BRAND TAB SWITCHING
+═══════════════════════════════════════════════════════════ */
+const rendered={};
+
+function switchBrand(brand, el){
+  document.querySelectorAll('.brand-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.brand-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+brand).classList.add('active');
+  el.classList.add('active');
+  if(!rendered[brand]){
+    rendered[brand]=true;
+    renderBrand(brand);
+  }
+}
+
+function renderBrand(brand){
+  const el=document.getElementById('sec-'+brand);
+  if(brand==='overview'){
+    el.innerHTML=buildOverviewHTML();
+    setTimeout(()=>{initOverviewCharts();buildOverviewBest();},50);
+    return;
+  }
+  if(brand==='mh') el.innerHTML=buildMHHTML();
+  else if(brand==='aa') el.innerHTML=buildAAHTML();
+  else if(brand==='pi') el.innerHTML=buildGenericHTML('pi','Pensions & Investments','pi',piCampaigns,
+    [{month:'January 2026',n:12,sent:466984,opens:22469,clicks:732,or:4.81,ctr:0.157,mom_or:0,mom_ctr:0},
+     {month:'February 2026',n:11,sent:451282,opens:24784,clicks:1112,or:5.49,ctr:0.246,mom_or:0.68,mom_ctr:0.089},
+     {month:'March 2026',n:10,sent:379686,opens:25748,clicks:1053,or:6.78,ctr:0.277,mom_or:1.29,mom_ctr:0.031},
+     {month:'April 2026',n:9,sent:334709,opens:21185,clicks:620,or:6.33,ctr:0.185,mom_or:-0.45,mom_ctr:-0.092},
+     {month:'May 2026',n:6,sent:237943,opens:14444,clicks:377,or:6.07,ctr:0.158,mom_or:-0.26,mom_ctr:-0.027}],
+    [{icon:'📈',cls:'good',title:'Roundtable & Supplement Formats Lead',text:'E&F Roundtable (8.1% OR) and Global Infrastructure Supplement (6.23–6.53% OR with 0.68–0.73% CTR) are top performers. Supplement-style emails drive both strong opens and high clicks.'},
+     {icon:'💰',cls:'info',title:'OCIO Replay Drives Best CTR',text:'The OCIO Strategy Replay (Apr 28) achieved 0.729% CTR — highest of any PI campaign. On-demand replay emails consistently outperform live-event promos on click engagement.'},
+     {icon:'⚠️',cls:'warn',title:'May OR Declining — Series Fatigue',text:'May OR has dropped to 5.03% from 6.39% in March. Multi-send webinar series (Nuveen, MultiSponsor, Global Infrastructure) show declining open rates by email 3–4.'},
+     {icon:'🎯',cls:'',title:'Infrastructure & Alts Themes Dominate',text:'Infrastructure Intel (6.7% OR, 0.77% CTR) and Private Markets topics show strongest audience resonance. Alternative investment themes consistently outperform core pension topics.'}]);
+  else if(brand==='gw') el.innerHTML=buildGenericHTML('gw','GenomeWeb','gw',gwCampaigns,
+    [{month:'January 2026',n:38,sent:470561,opens:28443,clicks:1790,or:6.04,ctr:0.38,mom_or:0,mom_ctr:0},
+     {month:'February 2026',n:52,sent:671141,opens:43141,clicks:2761,or:6.43,ctr:0.411,mom_or:0.39,mom_ctr:0.031},
+     {month:'March 2026',n:55,sent:639786,opens:40169,clicks:3100,or:6.28,ctr:0.485,mom_or:-0.15,mom_ctr:0.074},
+     {month:'April 2026',n:38,sent:468247,opens:27923,clicks:2205,or:5.96,ctr:0.471,mom_or:-0.32,mom_ctr:-0.014},
+     {month:'May 2026',n:20,sent:246399,opens:15482,clicks:1127,or:6.28,ctr:0.457,mom_or:0.32,mom_ctr:-0.014}],
+    [{icon:'🔬',cls:'good',title:'Highest CTR of All 5 Brands',text:'GenomeWeb averages 0.47% CTR — nearly 2× the next-best brand. The specialist scientific audience clicks at exceptionally high rates. StandardBio Mar 17 hit 1.865% CTR and Illumina Mar 10 hit 1.479% CTR.'},
+     {icon:'📊',cls:'info',title:'Small-List Sends Drive Outsized Engagement',text:'Targeted sends of 2,679–6,761 recipients (Illumina, StandardBio) regularly achieve 10–15%+ open rates. Smaller, more targeted lists dramatically outperform the 15K standard list.'},
+     {icon:'🤖',cls:'',title:'AI & Diagnostics Topics Lead',text:'SeqOne AI Rare Disease (7.79% OR, 0.47% CTR) and Illumina VRT (7.21–7.86% OR) are consistent standouts. AI applications in clinical genomics drive the strongest engagement.'},
+     {icon:'⚠️',cls:'warn',title:'Last-Chance Emails Show Mixed Results',text:'Last-chance sends for OxfordNanopore (2.49% OR) underperformed vs. the series average. Timing and subject line differentiation matters significantly for re-engagement sends.'}]);
+  else if(brand==='ccb') el.innerHTML=buildGenericHTML('ccb',"Crain's Chicago Business",'ccb',ccbCampaigns,
+    [{month:'January 2026',n:2,sent:56666,opens:3671,clicks:105,or:6.48,ctr:0.185,mom_or:0,mom_ctr:0},
+     {month:'February 2026',n:3,sent:154415,opens:7792,clicks:226,or:5.05,ctr:0.146,mom_or:-1.43,mom_ctr:-0.039},
+     {month:'March 2026',n:1,sent:77927,opens:3709,clicks:167,or:4.76,ctr:0.214,mom_or:-0.29,mom_ctr:0.068},
+     {month:'April 2026',n:4,sent:154553,opens:7617,clicks:209,or:4.93,ctr:0.135,mom_or:0.17,mom_ctr:-0.079},
+     {month:'May 2026',n:5,sent:291820,opens:17219,clicks:1136,or:5.9,ctr:0.389,mom_or:0.97,mom_ctr:0.254}],
+    [{icon:'🏆',cls:'good',title:'BPTW Emails Hit 31–35% Open Rates',text:'Best Places to Work campaign emails achieve 21–35% open rates — extraordinary engagement driven by the highly relevant, audience-specific content. BPTW Apr 28 ("What We See in Strong Workplaces") hit 34.78% OR and 0.80% CTR.'},
+     {icon:'📈',cls:'info',title:'May CTR Doubles Despite Lower OR',text:'May CTR (0.382%) is nearly double April (0.208%) despite lower open rates. The JLL and Clearstead whitepaper sends drove 438 and 336 clicks respectively — the highest raw click volumes in the CCB dataset.'},
+     {icon:'⚠️',cls:'warn',title:'OR Declining as Whitepaper Volume Grows',text:'As BPTW sends wind down and whitepaper sends scale up (38K-83K list), the blended OR drops from 13% to 7%. This is structural, not a performance problem — the two list sizes serve different purposes.'},
+     {icon:'💡',cls:'',title:'JLL Workplace Strategy Resonates',text:'Both JLL sends (Apr: "Why your workplace strategy may be failing" + May: "75% of organizations are misaligned") drove strong results. Workplace policy and strategy is clearly a high-interest topic for the Chicago business audience.'}]);
+  else if(brand==='cdb') el.innerHTML=buildGenericHTML('cdb',"Crain's Detroit",'cdb',cdbCampaigns,
+    [{month:'February 2026',n:2,sent:61072,opens:5342,clicks:696,or:8.75,ctr:1.14,mom_or:0,mom_ctr:0},
+     {month:'March 2026',n:2,sent:60607,opens:4969,clicks:540,or:8.2,ctr:0.891,mom_or:-0.55,mom_ctr:-0.249},
+     {month:'April 2026',n:4,sent:88098,opens:7912,clicks:675,or:8.98,ctr:0.766,mom_or:0.78,mom_ctr:-0.125}],
+    [{icon:'🏆',cls:'good',title:'Highest CTR Across All 6 Brands',text:'Crain\u2019s Detroit averages 0.91% CTR — nearly 4× the portfolio average. Luxury Home Spotlight series drives exceptional click engagement (1.04–1.86% CTR), pulling up the brand average significantly.'},
+     {icon:'🏠',cls:'info',title:'Luxury Home Spotlight Is the Star',text:'The Luxury Home Spotlight series (Feb 16, Mar 16, Apr 13, Apr 27) averages 11.3% OR and 1.3% CTR — extraordinary engagement. High-intent real estate audience responds extremely well to this premium lifestyle content.'},
+     {icon:'📅',cls:'',title:'Meeting & Events Guide Drives Volume',text:'The Meeting & Events Guide (Feb 10, Mar 18) reached 32K+ recipients with 6–6.3% OR. B2B event planning content resonates with the Detroit business audience at a strong rate.'},
+     {icon:'⚠️',cls:'warn',title:'Only 8 Campaigns YTD — Growth Opportunity',text:'Detroit has the highest CTR in the portfolio (0.91%) but only 8 campaigns in 2026 YTD. With proven audience engagement, expanding the custom media program here could drive significant revenue.'}]);
+
+  // Initialize charts after render
+  setTimeout(()=>initBrandCharts(brand), 50);
+
+  // Build tables
+  if(brand==='mh'){
+    buildAllTable(campaigns);
+    buildBestPerformers('mh-best-or','mh-best-ctr',campaigns);
+  } else if(brand==='aa'){
+    buildAATable(adAgeCampaigns);
+    buildAABest();
+  } else if(brand==='pi'){
+    buildGenericTable('pi-body',piCampaigns);
+    buildBestPerformers('pi-best-or','pi-best-ctr',piCampaigns.map(c=>({...c,open_rate:c.or_pct,name:c.client})));
+  } else if(brand==='gw'){
+    buildGenericTable('gw-body',gwCampaigns);
+    buildBestPerformers('gw-best-or','gw-best-ctr',gwCampaigns.map(c=>({...c,open_rate:c.or_pct,name:c.client})));
+  } else if(brand==='ccb'){
+    buildGenericTable('ccb-body',ccbCampaigns);
+    buildBestPerformers('ccb-best-or','ccb-best-ctr',ccbCampaigns.map(c=>({...c,open_rate:c.or_pct,name:c.client})));
+  } else if(brand==='cdb'){
+    buildGenericTable('cdb-body',cdbCampaigns);
+    buildBestPerformers('cdb-best-or','cdb-best-ctr',cdbCampaigns.map(c=>({...c,open_rate:c.or_pct,name:c.client})));
+  }
+}
+
+// Render MH tab on load (called explicitly below — do NOT pre-mark as rendered)
+
+/* ═══════════════════════════════════════════════════════════
+   MH HTML BUILDER
+═══════════════════════════════════════════════════════════ */
+function buildMHHTML(){
+  return `
+  <!-- YTD Summary cards -->
+  <div class="cards">
+    <div class="card"><div class="card-lbl">YTD Campaigns</div><div class="card-val">60</div><div class="card-sub">Jan 1 – May 23, 2026</div></div>
+    <div class="card"><div class="card-lbl">Total Sent</div><div class="card-val">1.69M</div><div class="card-sub">Jan–May 2026</div></div>
+    <div class="card"><div class="card-lbl">Total Real Opens</div><div class="card-val">92,031</div><div class="card-sub">5.45% avg OR</div></div>
+    <div class="card"><div class="card-lbl">Avg Open Rate</div><div class="card-val">5.45%</div><div class="card-sub">YTD 2026</div></div>
+    <div class="card"><div class="card-lbl">Total Real Clicks</div><div class="card-val">4,939</div><div class="card-sub">0.292% avg CTR</div></div>
+    <div class="card"><div class="card-lbl">Avg CTR</div><div class="card-val">0.29%</div><div class="card-sub">YTD 2026</div></div>
+    <div class="card"><div class="card-lbl">YTD Conversions</div><div class="card-val" style="color:#10b981">1,147</div><div class="card-sub">687 leads &middot; 460 registrants</div></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="sec-hdr"><div class="sec-title">Monthly Performance</div><div class="sec-sub">Jan–May 2026</div></div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Real Opens by Month</h3><div class="chart-wrap"><canvas id="mh-opens"></canvas></div></div>
+    <div class="chart-card"><h3>Open Rate &amp; CTR by Month (%)</h3><div class="chart-wrap"><canvas id="mh-rate"></canvas></div></div>
+    <div class="chart-card"><h3>Campaigns by Month</h3><div class="chart-wrap"><canvas id="mh-count"></canvas></div></div>
+    <div class="chart-card"><h3>Unique Real Clicks by Month</h3><div class="chart-wrap"><canvas id="mh-clicks"></canvas></div></div>
+  </div>
+
+  <!-- Monthly table -->
+  <div class="sec-hdr"><div class="sec-title">Monthly Breakdown</div></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Month</th><th class="num">Campaigns</th><th class="num">Sent</th>
+        <th class="num">Opens</th><th class="num">OR</th>
+        <th class="num">Clicks</th><th class="num">CTR</th>
+        <th class="num">MoM OR</th><th class="num">MoM CTR</th>
+        <th class="num" style="color:#10b981" title="Gated content downloads & HLR leads">Leads</th>
+        <th class="num" style="color:#3b82f6" title="Webinar registrants">Regs</th>
+      </tr></thead>
+      <tbody id="mh-monthly"></tbody>
+    </table>
+  </div>
+
+  <!-- Insights -->
+  <div class="insights">
+    <div class="insight good"><div class="insight-icon">🎙️</div><h4>Podcasts Best Format (6.9% OR)</h4><p>Temple Health and CVS Health podcasts achieved 6.9% OR each — the highest open rates of any format. Podcast emails consistently outperform webinar and gated content on engagement efficiency.</p></div>
+    <div class="insight warn"><div class="insight-icon">📉</div><h4>May OR Dipping — Worth Watching</h4><p>May open rate (4.6%) is 0.6 points below March and April (both 5.2%). Late-series webinar emails (Email #3 and #4) are dragging down the average.</p></div>
+    <div class="insight info"><div class="insight-icon">🤖</div><h4>AI Subject Lines Convert Best</h4><p>Lumeris Webinar #1 ("How Ochsner Health is transforming primary care with AI") achieved 0.43% CTR — highest of any large-list webinar send. AI-focused content resonates strongly.</p></div>
+    <div class="insight"><div class="insight-icon">📰</div><h4>HLR Drives Volume</h4><p>Healthcare Leadership Review digest emails (70K+ recipients) generate 175–303 clicks each — highest raw numbers. Best for broad exposure across the MH executive audience.</p></div>
+    <div class="insight good"><div class="insight-icon">🎯</div><h4>460 Webinar Registrants YTD — March Led the Way</h4><p>Webinar campaigns generated 460 registrants YTD (through May 12). March dominated with 169 registrations across the MedSpeed and Premier series — the MedSpeed Webinar #3 alone drove 46 sign-ups. Gated content has generated 687 leads YTD, led by PWC (75), HLR-January (150), and SwordHealth (51 combined).</p></div>
+  </div>
+
+  <!-- Best Performers -->
+  <div class="sec-hdr"><div class="sec-title">Best Performers</div></div>
+  <div class="best-cols">
+    <div class="tbl-wrap" style="margin:0">
+      <table>
+        <thead><tr><th>#</th><th>Campaign</th><th>Subject</th><th>Date</th><th class="num">Sent</th><th class="num">Opens</th><th class="num">OR</th><th class="num">CTR</th></tr></thead>
+        <tbody id="mh-best-or"></tbody>
+      </table>
+    </div>
+    <div class="tbl-wrap" style="margin:0">
+      <table>
+        <thead><tr><th>#</th><th>Campaign</th><th>Subject</th><th>Date</th><th class="num">Sent</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">OR</th></tr></thead>
+        <tbody id="mh-best-ctr"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Last Week Highlight -->
+  <div class="lw-hdr" style="margin-bottom:1rem">
+    <h2>Last Week (May 11–17) · Modern Healthcare</h2>
+    <p>2 campaigns sent &nbsp;·&nbsp; 39,403 total sent &nbsp;·&nbsp; 1,879 real opens &nbsp;·&nbsp; avg 4.8% OR &nbsp;·&nbsp; 72 unique clicks</p>
+  </div>
+  <div class="tbl-wrap" style="margin-bottom:1.5rem">
+    <table>
+      <thead><tr>
+        <th>Campaign</th><th>Subject</th><th>Date</th><th>Type</th>
+        <th class="num">Sent</th><th class="num">Real Opens</th>
+        <th class="num">Open Rate</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num" title="Click-to-Open Rate">CTOR</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="cn">Lumeris Webinar #3</td>
+          <td class="subj">Smarter primary care: AI, access and a new care model</td>
+          <td>May 11</td><td>${typeChip('Webinar')}</td>
+          <td class="num">29,342</td><td class="num">1,287</td>
+          <td class="num"><span class="rate mid">4.39%</span></td>
+          <td class="num">49</td><td class="num"><span class="rate mid">0.167%</span></td>
+          <td class="num"><span class="rate mid">3.81%</span></td>
+        </tr>
+        <tr>
+          <td class="cn">SmartRise Health Quick Take Video</td>
+          <td class="subj">Quick Take: Scaling value-based care starts with one key question</td>
+          <td>May 12</td><td>${typeChip('QTVideo')}</td>
+          <td class="num">10,061</td><td class="num">592</td>
+          <td class="num"><span class="rate mid">5.88%</span></td>
+          <td class="num">23</td><td class="num"><span class="rate mid">0.229%</span></td>
+          <td class="num"><span class="rate mid">3.89%</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- All Campaigns -->
+  <div class="sec-hdr">
+    <div><div class="sec-title">All Campaigns</div><div class="sec-sub">60 campaigns · click columns to sort</div></div>
+    <select id="mh-type-filter" onchange="filterMHTable()" class="filter-sel">
+      <option value="">All Types</option>
+      <option>Webinar</option><option>Podcast</option><option>GatedContent</option>
+      <option>HLR</option><option>ICYMI</option><option>QTVideo</option><option>WOD</option>
+    </select>
+  </div>
+  <div class="tbl-wrap">
+    <table id="mh-all-table">
+      <thead><tr>
+        <th onclick="sortGenericTable('mh-tbody',0)">Campaign ↕</th>
+        <th onclick="sortGenericTable('mh-tbody',1)">Subject ↕</th>
+        <th onclick="sortGenericTable('mh-tbody',2)">Date ↕</th>
+        <th>Type</th>
+        <th class="num" onclick="sortGenericTable('mh-tbody',4)">Sent ↕</th>
+        <th class="num" onclick="sortGenericTable('mh-tbody',5)">Opens ↕</th>
+        <th class="num" onclick="sortGenericTable('mh-tbody',6)">OR ↕</th>
+        <th class="num" onclick="sortGenericTable('mh-tbody',7)">Clicks ↕</th>
+        <th class="num" onclick="sortGenericTable('mh-tbody',8)">CTR ↕</th>
+        <th class="num" onclick="sortGenericTable('mh-tbody',9)" title="Click-to-Open Rate: clicks ÷ opens">CTOR ↕</th>
+        <th class="num" onclick="sortGenericTable('mh-tbody',10)" title="Conversions from Smartsheet KPI tracker (L=Lead, R=Registrant, I=ICYMI)">Convs ↕</th>
+      </tr></thead>
+      <tbody id="mh-tbody"></tbody>
+    </table>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AA HTML BUILDER
+═══════════════════════════════════════════════════════════ */
+function buildAAHTML(){
+  return `
+  <div class="cards">
+    <div class="card"><div class="card-lbl">Total Campaigns</div><div class="card-val">47</div><div class="card-sub">Jan–May 2026</div></div>
+    <div class="card"><div class="card-lbl">Total Sent</div><div class="card-val">5.27M</div></div>
+    <div class="card"><div class="card-lbl">Total Opens</div><div class="card-val">208,315</div><div class="card-sub">avg 3.95% OR</div></div>
+    <div class="card"><div class="card-lbl">Avg Open Rate</div><div class="card-val">3.95%</div></div>
+    <div class="card"><div class="card-lbl">Total Clicks</div><div class="card-val">8,063</div></div>
+    <div class="card"><div class="card-lbl">Avg CTR</div><div class="card-val">0.15%</div></div>
+  </div>
+  <div class="sec-hdr"><div class="sec-title">Monthly Performance</div><div class="sec-sub">Jan–May 2026</div></div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Real Opens by Month</h3><div class="chart-wrap"><canvas id="aa-opens"></canvas></div></div>
+    <div class="chart-card"><h3>Open Rate &amp; CTR by Month (%)</h3><div class="chart-wrap"><canvas id="aa-rate"></canvas></div></div>
+    <div class="chart-card"><h3>Campaigns by Month</h3><div class="chart-wrap"><canvas id="aa-count"></canvas></div></div>
+    <div class="chart-card"><h3>Unique Real Clicks by Month</h3><div class="chart-wrap"><canvas id="aa-clicks"></canvas></div></div>
+  </div>
+  <div class="sec-hdr"><div class="sec-title">Monthly Breakdown</div></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Month</th><th class="num">Campaigns</th><th class="num">Sent</th>
+        <th class="num">Opens</th><th class="num">OR</th>
+        <th class="num">Clicks</th><th class="num">CTR</th>
+        <th class="num">MoM OR</th><th class="num">MoM CTR</th>
+      </tr></thead>
+      <tbody id="aa-monthly"></tbody>
+    </table>
+  </div>
+  <div class="insights">
+    <div class="insight good"><div class="insight-icon">📈</div><h4>April Had the Best Open Rates</h4><p>April's 4.08% average was the strongest open rate month. The Audacy "sports fandom" Email 3 hit 4.43% — the highest single open rate of any campaign this period.</p></div>
+    <div class="insight warn"><div class="insight-icon">📉</div><h4>CTR Declining Month-over-Month</h4><p>CTR fell from 0.19% in March to 0.12% in May. The March spike was driven by early Audacy and Epsilon webinar registrations (0.32% CTR each). Upcoming new webinar launches should reverse this trend.</p></div>
+    <div class="insight info"><div class="insight-icon">🎯</div><h4>Webinar Emails Outperform Whitepapers on CTR — by 1.6×</h4><p>Webinar promo emails average 0.22% CTR vs. 0.14% for whitepaper postings. All top 5 CTR campaigns are webinar sends.</p></div>
+    <div class="insight"><div class="insight-icon">⭐</div><h4>AI &amp; Influencer Topics Dominate Whitepaper CTR</h4><p>StarFish Co. (0.32% CTR — "Protect your brand's soul in the age of AI") and Later (0.21% CTR — influencer-as-infrastructure) outperformed all other whitepaper sends by 2–3×.</p></div>
+  </div>
+  <div class="sec-hdr"><div class="sec-title">Best Performers</div></div>
+  <div class="best-cols">
+    <div class="tbl-wrap" style="margin:0">
+      <table>
+        <thead><tr><th>#</th><th>Client</th><th>Subject</th><th>Date</th><th class="num">Sent</th><th class="num">Opens</th><th class="num">OR</th><th class="num">CTR</th></tr></thead>
+        <tbody id="aa-best-or"></tbody>
+      </table>
+    </div>
+    <div class="tbl-wrap" style="margin:0">
+      <table>
+        <thead><tr><th>#</th><th>Client</th><th>Subject</th><th>Date</th><th class="num">Sent</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">OR</th></tr></thead>
+        <tbody id="aa-best-ctr"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="sec-hdr">
+    <div><div class="sec-title">All Ad Age Campaigns</div><div class="sec-sub">42 campaigns · click columns to sort</div></div>
+    <select id="aa-type-filter" onchange="filterAATable()" class="filter-sel">
+      <option value="">All Types</option>
+      <option>Webinar</option><option>WOD</option><option>Whitepaper</option><option>Podcast</option>
+    </select>
+  </div>
+  <div class="tbl-wrap">
+    <table id="aa-all-table">
+      <thead><tr>
+        <th onclick="sortGenericTable('aa-tbody',0)">Client ↕</th>
+        <th onclick="sortGenericTable('aa-tbody',1)">Subject ↕</th>
+        <th onclick="sortGenericTable('aa-tbody',2)">Date ↕</th>
+        <th>Type</th>
+        <th class="num" onclick="sortGenericTable('aa-tbody',4)">Sent ↕</th>
+        <th class="num" onclick="sortGenericTable('aa-tbody',5)">Opens ↕</th>
+        <th class="num" onclick="sortGenericTable('aa-tbody',6)">OR ↕</th>
+        <th class="num" onclick="sortGenericTable('aa-tbody',7)">Clicks ↕</th>
+        <th class="num" onclick="sortGenericTable('aa-tbody',8)">CTR ↕</th>
+        <th class="num" onclick="sortGenericTable('aa-tbody',9)" title="Click-to-Open Rate">CTOR ↕</th>
+      </tr></thead>
+      <tbody id="aa-tbody"></tbody>
+    </table>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GENERIC HTML BUILDER (PI, GW, CCB)
+═══════════════════════════════════════════════════════════ */
+function buildGenericHTML(brand, title, prefix, campaigns, monthlyData, insights){
+  const totSent=campaigns.reduce((a,c)=>a+c.sent,0);
+  const totOpens=campaigns.reduce((a,c)=>a+c.real_opens,0);
+  const totClicks=campaigns.reduce((a,c)=>a+c.unique_real_clicks,0);
+  const avgOR=(totOpens/totSent*100).toFixed(2);
+  const avgCTR=(totClicks/totSent*100).toFixed(3);
+  const insightHTML=insights.map(i=>`<div class="insight ${i.cls||''}"><div class="insight-icon">${i.icon}</div><h4>${i.title}</h4><p>${i.text}</p></div>`).join('');
+  return `
+  <div class="cards">
+    <div class="card"><div class="card-lbl">Total Campaigns</div><div class="card-val">${campaigns.length}</div><div class="card-sub">Jan–May 2026</div></div>
+    <div class="card"><div class="card-lbl">Total Sent</div><div class="card-val">${(totSent/1000000).toFixed(2)}M</div></div>
+    <div class="card"><div class="card-lbl">Total Opens</div><div class="card-val">${fN(totOpens)}</div><div class="card-sub">avg ${avgOR}% OR</div></div>
+    <div class="card"><div class="card-lbl">Avg Open Rate</div><div class="card-val">${avgOR}%</div></div>
+    <div class="card"><div class="card-lbl">Total Clicks</div><div class="card-val">${fN(totClicks)}</div></div>
+    <div class="card"><div class="card-lbl">Avg CTR</div><div class="card-val">${avgCTR}%</div></div>
+  </div>
+  <div class="sec-hdr"><div class="sec-title">Monthly Performance</div><div class="sec-sub">Jan–May 2026</div></div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Real Opens by Month</h3><div class="chart-wrap"><canvas id="${prefix}-opens"></canvas></div></div>
+    <div class="chart-card"><h3>Open Rate &amp; CTR by Month (%)</h3><div class="chart-wrap"><canvas id="${prefix}-rate"></canvas></div></div>
+    <div class="chart-card"><h3>Campaigns by Month</h3><div class="chart-wrap"><canvas id="${prefix}-count"></canvas></div></div>
+    <div class="chart-card"><h3>Unique Real Clicks by Month</h3><div class="chart-wrap"><canvas id="${prefix}-clicks"></canvas></div></div>
+  </div>
+  <div class="sec-hdr"><div class="sec-title">Monthly Breakdown</div></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Month</th><th class="num">Campaigns</th><th class="num">Sent</th>
+        <th class="num">Opens</th><th class="num">OR</th>
+        <th class="num">Clicks</th><th class="num">CTR</th>
+        <th class="num">MoM OR</th><th class="num">MoM CTR</th>
+      </tr></thead>
+      <tbody id="${prefix}-monthly"></tbody>
+    </table>
+  </div>
+  <div class="insights">${insightHTML}</div>
+  <div class="sec-hdr"><div class="sec-title">Best Performers</div></div>
+  <div class="best-cols">
+    <div class="tbl-wrap" style="margin:0">
+      <table>
+        <thead><tr><th>#</th><th>Client/Campaign</th><th>Subject</th><th>Date</th><th class="num">Sent</th><th class="num">Opens</th><th class="num">OR</th><th class="num">CTR</th></tr></thead>
+        <tbody id="${prefix}-best-or"></tbody>
+      </table>
+    </div>
+    <div class="tbl-wrap" style="margin:0">
+      <table>
+        <thead><tr><th>#</th><th>Client/Campaign</th><th>Subject</th><th>Date</th><th class="num">Sent</th><th class="num">Clicks</th><th class="num">CTR</th><th class="num">OR</th></tr></thead>
+        <tbody id="${prefix}-best-ctr"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="sec-hdr">
+    <div><div class="sec-title">All ${title} Campaigns</div><div class="sec-sub">${campaigns.length} campaigns · click columns to sort</div></div>
+    <select id="${prefix}-type-filter" onchange="filterGenericTable('${prefix}')" class="filter-sel">
+      <option value="">All Types</option>
+      ${[...new Set(campaigns.map(c=>c.type))].map(t=>`<option>${t}</option>`).join('')}
+    </select>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th onclick="sortGenericTable('${prefix}-body',0)">Client ↕</th>
+        <th onclick="sortGenericTable('${prefix}-body',1)">Subject ↕</th>
+        <th onclick="sortGenericTable('${prefix}-body',2)">Date ↕</th>
+        <th>Type</th>
+        <th class="num" onclick="sortGenericTable('${prefix}-body',4)">Sent ↕</th>
+        <th class="num" onclick="sortGenericTable('${prefix}-body',5)">Opens ↕</th>
+        <th class="num" onclick="sortGenericTable('${prefix}-body',6)">OR ↕</th>
+        <th class="num" onclick="sortGenericTable('${prefix}-body',7)">Clicks ↕</th>
+        <th class="num" onclick="sortGenericTable('${prefix}-body',8)">CTR ↕</th>
+      </tr></thead>
+      <tbody id="${prefix}-body"></tbody>
+    </table>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHART INIT PER BRAND
+═══════════════════════════════════════════════════════════ */
+const brandChartData={
+  mh:{opens:[13665,18199,30480,16786,12901],rates:[6.66,6.74,5.12,5.05,4.51],ctrs:[0.445,0.39,0.241,0.289,0.203],counts:[12,10,14,11,13],clicks:[913,1053,1433,960,580]},
+  aa:{opens:[31989,17474,40220,32749,40633],rates:[3.75,4.15,3.78,3.97,3.97],ctrs:[0.166,0.142,0.165,0.118,0.126],counts:[10,5,11,7,9],clicks:[1412,596,1757,976,1289]},
+  pi:{opens:[22469,24784,25748,21185,14444],rates:[4.81,5.49,6.78,6.33,6.07],ctrs:[0.157,0.246,0.277,0.185,0.158],counts:[12,11,10,9,6],clicks:[732,1112,1053,620,377]},
+  gw:{opens:[28443,43141,40169,27923,15482],rates:[6.04,6.43,6.28,5.96,6.28],ctrs:[0.38,0.411,0.485,0.471,0.457],counts:[38,52,55,38,20],clicks:[1790,2761,3100,2205,1127]},
+  ccb:{opens:[3671,7792,3709,7617,17219],rates:[6.48,5.05,4.76,4.93,5.9],ctrs:[0.185,0.146,0.214,0.135,0.389],counts:[2,3,1,4,5],clicks:[105,226,167,209,1136]},
+  cdb:{opens:[0,5342,4969,7912,0],rates:[0,8.75,8.2,8.98,0],ctrs:[0,1.14,0.891,0.766,0],counts:[0,2,2,4,0],clicks:[0,696,540,675,0]},
+};
+
+const brandMonthlyRows={
+  mh:[{month:'January 2026',n:12,sent:205304,opens:13665,clicks:913,or:6.66,ctr:0.445,mom_or:0,mom_ctr:0,leads:200,regs:0},
+     {month:'February 2026',n:10,sent:269852,opens:18199,clicks:1053,or:6.74,ctr:0.39,mom_or:0.08,mom_ctr:-0.055,leads:210,regs:10},
+     {month:'March 2026',n:14,sent:595017,opens:30480,clicks:1433,or:5.12,ctr:0.241,mom_or:-1.62,mom_ctr:-0.149,leads:123,regs:169},
+     {month:'April 2026',n:11,sent:332530,opens:16786,clicks:960,or:5.05,ctr:0.289,mom_or:-0.07,mom_ctr:0.048,leads:103,regs:92},
+     {month:'May 2026',n:13,sent:286270,opens:12901,clicks:580,or:4.51,ctr:0.203,mom_or:-0.54,mom_ctr:-0.086,leads:51,regs:189}],
+  aa:[{month:'January 2026',n:10,sent:852511,opens:31989,clicks:1412,or:3.75,ctr:0.166,mom_or:0,mom_ctr:0},
+     {month:'February 2026',n:5,sent:420993,opens:17474,clicks:596,or:4.15,ctr:0.142,mom_or:0.4,mom_ctr:-0.024},
+     {month:'March 2026',n:11,sent:1063126,opens:40220,clicks:1757,or:3.78,ctr:0.165,mom_or:-0.37,mom_ctr:0.023},
+     {month:'April 2026',n:7,sent:824993,opens:32749,clicks:976,or:3.97,ctr:0.118,mom_or:0.19,mom_ctr:-0.047},
+     {month:'May 2026',n:9,sent:1023899,opens:40633,clicks:1289,or:3.97,ctr:0.126,mom_or:0.0,mom_ctr:0.008}],
+  pi:[{month:'January 2026',n:12,sent:466984,opens:22469,clicks:732,or:4.81,ctr:0.157,mom_or:0,mom_ctr:0},
+     {month:'February 2026',n:11,sent:451282,opens:24784,clicks:1112,or:5.49,ctr:0.246,mom_or:0.68,mom_ctr:0.089},
+     {month:'March 2026',n:10,sent:379686,opens:25748,clicks:1053,or:6.78,ctr:0.277,mom_or:1.29,mom_ctr:0.031},
+     {month:'April 2026',n:9,sent:334709,opens:21185,clicks:620,or:6.33,ctr:0.185,mom_or:-0.45,mom_ctr:-0.092},
+     {month:'May 2026',n:6,sent:237943,opens:14444,clicks:377,or:6.07,ctr:0.158,mom_or:-0.26,mom_ctr:-0.027}],
+  gw:[{month:'January 2026',n:38,sent:470561,opens:28443,clicks:1790,or:6.04,ctr:0.38,mom_or:0,mom_ctr:0},
+     {month:'February 2026',n:52,sent:671141,opens:43141,clicks:2761,or:6.43,ctr:0.411,mom_or:0.39,mom_ctr:0.031},
+     {month:'March 2026',n:55,sent:639786,opens:40169,clicks:3100,or:6.28,ctr:0.485,mom_or:-0.15,mom_ctr:0.074},
+     {month:'April 2026',n:38,sent:468247,opens:27923,clicks:2205,or:5.96,ctr:0.471,mom_or:-0.32,mom_ctr:-0.014},
+     {month:'May 2026',n:20,sent:246399,opens:15482,clicks:1127,or:6.28,ctr:0.457,mom_or:0.32,mom_ctr:-0.014}],
+  ccb:[{month:'January 2026',n:2,sent:56666,opens:3671,clicks:105,or:6.48,ctr:0.185,mom_or:0,mom_ctr:0},
+     {month:'February 2026',n:3,sent:154415,opens:7792,clicks:226,or:5.05,ctr:0.146,mom_or:-1.43,mom_ctr:-0.039},
+     {month:'March 2026',n:1,sent:77927,opens:3709,clicks:167,or:4.76,ctr:0.214,mom_or:-0.29,mom_ctr:0.068},
+     {month:'April 2026',n:4,sent:154553,opens:7617,clicks:209,or:4.93,ctr:0.135,mom_or:0.17,mom_ctr:-0.079},
+     {month:'May 2026',n:5,sent:291820,opens:17219,clicks:1136,or:5.9,ctr:0.389,mom_or:0.97,mom_ctr:0.254}],
+  cdb:[{month:'February 2026',n:2,sent:61072,opens:5342,clicks:696,or:8.75,ctr:1.14,mom_or:0,mom_ctr:0},
+     {month:'March 2026',n:2,sent:60607,opens:4969,clicks:540,or:8.2,ctr:0.891,mom_or:-0.55,mom_ctr:-0.249},
+     {month:'April 2026',n:4,sent:88098,opens:7912,clicks:675,or:8.98,ctr:0.766,mom_or:0.78,mom_ctr:-0.125}],
+};
+
+function initBrandCharts(brand){
+  const d=brandChartData[brand];
+  if(!d) return;
+  const months=['Jan','Feb','Mar','Apr','May (partial)'];
+  buildBarChart(brand+'-opens',months,[{data:d.opens}],'real opens');
+  buildBarChart(brand+'-rate',months,[{label:'Open Rate %',data:d.rates},{label:'CTR %',data:d.ctrs}],'');
+  buildBarChart(brand+'-count',months,[{data:d.counts}],'campaigns');
+  buildBarChart(brand+'-clicks',months,[{data:d.clicks}],'unique real clicks');
+
+  // Build monthly table
+  buildMonthlyTable(brand+'-monthly', brandMonthlyRows[brand]);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MH TABLE FUNCTIONS
+═══════════════════════════════════════════════════════════ */
+function buildAllTable(data){
+  const tbody=document.getElementById('mh-tbody');
+  if(!tbody) return;
+  tbody.innerHTML=data.map(c=>{
+    const name=c.name.replace('CustomMedia-','').replace(/-202\d+$/,'');
+    const dateStr=new Date(c.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const ctor_val=calcCtor(c.unique_real_clicks,c.real_opens);
+    return `<tr>
+      <td class="cn">${name}</td>
+      <td class="subj">${c.subject}</td>
+      <td style="white-space:nowrap">${dateStr}</td>
+      <td>${typeChip(c.type)}</td>
+      <td class="num">${fN(c.sent)}</td>
+      <td class="num">${fN(c.real_opens)}</td>
+      <td class="num"><span class="rate ${rateClass(c.open_rate)}">${c.open_rate}%</span></td>
+      <td class="num">${fN(c.unique_real_clicks)}</td>
+      <td class="num"><span class="rate ${ctrClass(c.ctr)}">${c.ctr}%</span></td>
+      <td class="num"><span class="rate ${ctorClass(ctor_val)}">${ctor_val}%</span></td>
+      <td class="num">${convChip(c.name)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function filterMHTable(){
+  const v=document.getElementById('mh-type-filter').value;
+  buildAllTable(v?campaigns.filter(c=>c.type===v):campaigns);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AA TABLE FUNCTIONS
+═══════════════════════════════════════════════════════════ */
+function buildAATable(data){
+  const tbody=document.getElementById('aa-tbody');
+  if(!tbody) return;
+  tbody.innerHTML=data.map(c=>{
+    const dateStr=new Date(c.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const ctor_v=calcCtor(c.unique_real_clicks,c.real_opens);
+    return `<tr>
+      <td class="cn">${c.client}</td>
+      <td class="subj">${c.subject}</td>
+      <td style="white-space:nowrap">${dateStr}</td>
+      <td>${typeChip(c.type)}</td>
+      <td class="num">${fN(c.sent)}</td>
+      <td class="num">${fN(c.real_opens)}</td>
+      <td class="num"><span class="rate ${rateClass(c.or_pct)}">${c.or_pct}%</span></td>
+      <td class="num">${fN(c.unique_real_clicks)}</td>
+      <td class="num"><span class="rate ${ctrClass(c.ctr)}">${c.ctr}%</span></td>
+      <td class="num"><span class="rate ${ctorClass(ctor_v)}">${ctor_v}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterAATable(){
+  const v=document.getElementById('aa-type-filter').value;
+  buildAATable(v?adAgeCampaigns.filter(c=>c.type===v):adAgeCampaigns);
+}
+
+function buildAABest(){
+  const medals=['🥇','🥈','🥉','4','5'];
+  const sorted_or=[...adAgeCampaigns].sort((a,b)=>b.or_pct-a.or_pct).slice(0,5);
+  const sorted_ctr=[...adAgeCampaigns].sort((a,b)=>b.ctr-a.ctr).slice(0,5);
+  const orEl=document.getElementById('aa-best-or');
+  if(orEl) orEl.innerHTML=sorted_or.map((c,i)=>`<tr${i<3?' class="best-row"':''}>
+    <td>${medals[i]}</td><td class="cn">${c.client}</td><td class="subj">${c.subject}</td>
+    <td>${new Date(c.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td>
+    <td class="num">${fN(c.sent)}</td><td class="num">${fN(c.real_opens)}</td>
+    <td class="num"><span class="rate hi">${c.or_pct}%</span></td>
+    <td class="num">${c.ctr}%</td>
+  </tr>`).join('');
+  const ctrEl=document.getElementById('aa-best-ctr');
+  if(ctrEl) ctrEl.innerHTML=sorted_ctr.map((c,i)=>`<tr${i<3?' class="best-row"':''}>
+    <td>${medals[i]}</td><td class="cn">${c.client}</td><td class="subj">${c.subject}</td>
+    <td>${new Date(c.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td>
+    <td class="num">${fN(c.sent)}</td><td class="num">${fN(c.unique_real_clicks)}</td>
+    <td class="num"><span class="rate hi">${c.ctr}%</span></td>
+    <td class="num">${c.or_pct}%</td>
+  </tr>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GENERIC TABLE FUNCTIONS (PI, GW, CCB)
+═══════════════════════════════════════════════════════════ */
+const brandDataMap={pi:piCampaigns,gw:gwCampaigns,ccb:ccbCampaigns,cdb:cdbCampaigns};
+
+function buildGenericTable(tbodyId, data){
+  const tbody=document.getElementById(tbodyId);
+  if(!tbody) return;
+  tbody.innerHTML=data.map(c=>{
+    const dateStr=new Date(c.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const ctor_v=calcCtor(c.unique_real_clicks,c.real_opens);
+    return `<tr>
+      <td class="cn">${c.client}</td>
+      <td class="subj">${c.subject}</td>
+      <td style="white-space:nowrap">${dateStr}</td>
+      <td>${typeChip(c.type)}</td>
+      <td class="num">${fN(c.sent)}</td>
+      <td class="num">${fN(c.real_opens)}</td>
+      <td class="num"><span class="rate ${rateClass(c.or_pct)}">${c.or_pct}%</span></td>
+      <td class="num">${fN(c.unique_real_clicks)}</td>
+      <td class="num"><span class="rate ${ctrClass(c.ctr)}">${c.ctr}%</span></td>
+      <td class="num"><span class="rate ${ctorClass(ctor_v)}">${ctor_v}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterGenericTable(prefix){
+  const v=document.getElementById(prefix+'-type-filter').value;
+  const data=brandDataMap[prefix];
+  if(!data) return;
+  buildGenericTable(prefix+'-body', v?data.filter(c=>c.type===v):data);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OVERVIEW
+═══════════════════════════════════════════════════════════ */
+function buildOverviewHTML(){
+  return `
+  <!-- Summary cards -->
+  <div class="cards">
+    <div class="card"><div class="card-lbl">Brands Tracked</div><div class="card-val">6</div><div class="card-sub">MH · Ad Age · P&I · GW · CCB · CDB</div></div>
+    <div class="card"><div class="card-lbl">Total Campaigns</div><div class="card-val">376</div><div class="card-sub">Jan 1 – May 23, 2026</div></div>
+    <div class="card"><div class="card-lbl">Total Emails Sent</div><div class="card-val">11.19M</div><div class="card-sub">across all 6 brands</div></div>
+    <div class="card"><div class="card-lbl">Total Real Opens</div><div class="card-val">577,115</div><div class="card-sub">blended 5.16% open rate</div></div>
+    <div class="card"><div class="card-lbl">Total Real Clicks</div><div class="card-val">29,600</div><div class="card-sub">blended 0.265% CTR</div></div>
+    <div class="card"><div class="card-lbl">Portfolio CTOR</div><div class="card-val">5.13%</div><div class="card-sub">clicks ÷ opens · better cross-brand metric</div></div>
+  </div>
+
+  <!-- Brand comparison + charts side-by-side -->
+  <div class="sec-hdr"><div class="sec-title">Brand Performance Comparison</div><div class="sec-sub">Jan–May 2026 · all campaigns combined</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1.1fr;gap:1rem;margin-bottom:1.5rem;align-items:start">
+    <div>
+      <div class="chart-card" style="margin-bottom:1rem">
+        <h3>Open Rate by Brand (%)</h3>
+        <div class="chart-wrap"><canvas id="ovw-or-chart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>CTR by Brand (%)</h3>
+        <div class="chart-wrap"><canvas id="ovw-ctr-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="tbl-wrap" style="margin:0">
+      <table>
+        <thead><tr>
+          <th>Brand</th><th class="num">Campaigns</th><th class="num">Total Sent</th>
+          <th class="num">Real Opens</th><th class="num">Open Rate</th>
+          <th class="num">Clicks</th><th class="num">CTR</th>
+          <th class="num" title="Click-to-Open Rate: clicks ÷ opens. Better cross-brand comparator than OR.">CTOR ⓘ</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>🏥 Modern Healthcare</strong></td>
+            <td class="num">60</td><td class="num">1,688,973</td>
+            <td class="num">92,031</td><td class="num"><span class="rate mid">5.45%</span></td>
+            <td class="num">4,939</td><td class="num"><span class="rate mid">0.292%</span></td>
+            <td class="num"><span class="rate mid">5.37%</span></td>
+          </tr>
+          <tr>
+            <td><strong>📰 Ad Age</strong></td>
+            <td class="num">42</td><td class="num">4,185,522</td>
+            <td class="num">163,065</td><td class="num"><span class="rate lo">3.9%</span></td>
+            <td class="num">6,030</td><td class="num"><span class="rate lo">0.144%</span></td>
+            <td class="num"><span class="rate lo">3.70%</span></td>
+          </tr>
+          <tr>
+            <td><strong>💼 Pensions &amp; Investments</strong></td>
+            <td class="num">48</td><td class="num">1,870,604</td>
+            <td class="num">108,630</td><td class="num"><span class="rate mid">5.81%</span></td>
+            <td class="num">3,894</td><td class="num"><span class="rate mid">0.208%</span></td>
+            <td class="num"><span class="rate lo">3.58%</span></td>
+          </tr>
+          <tr>
+            <td><strong>🔬 GenomeWeb</strong></td>
+            <td class="num">203</td><td class="num">2,496,134</td>
+            <td class="num">155,158</td><td class="num"><span class="rate hi">6.22%</span></td>
+            <td class="num">10,983</td><td class="num"><span class="rate hi">0.44%</span></td>
+            <td class="num"><span class="rate hi">7.08%</span></td>
+          </tr>
+          <tr>
+            <td><strong>🌆 Crain's Chicago</strong></td>
+            <td class="num">15</td><td class="num">735,381</td>
+            <td class="num">40,008</td><td class="num"><span class="rate mid">5.44%</span></td>
+            <td class="num">1,843</td><td class="num"><span class="rate mid">0.251%</span></td>
+            <td class="num"><span class="rate mid">4.61%</span></td>
+          </tr>
+          <tr class="hl">
+            <td><strong>🏙️ Crain's Detroit</strong></td>
+            <td class="num">8</td><td class="num">209,777</td>
+            <td class="num">18,223</td><td class="num"><span class="rate hi">8.69%</span></td>
+            <td class="num">1,911</td><td class="num"><span class="rate hi">0.911%</span></td>
+            <td class="num"><span class="rate hi">10.49%</span></td>
+          </tr>
+          <tr style="background:#f8fafc;font-weight:800;border-top:2px solid #e2e8f0">
+            <td>📊 Portfolio Total</td>
+            <td class="num">376</td><td class="num">11,186,391</td>
+            <td class="num">577,115</td><td class="num"><span class="rate mid">5.16%</span></td>
+            <td class="num">29,600</td><td class="num"><span class="rate mid">0.265%</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Monthly cross-brand trends table -->
+  <div class="sec-hdr"><div class="sec-title">Open Rate Trends by Brand &amp; Month</div><div class="sec-sub">How each brand performed month-over-month</div></div>
+  <div class="tbl-wrap" style="margin-bottom:1.5rem">
+    <table>
+      <thead><tr>
+        <th>Brand</th>
+        <th class="num">Jan OR</th><th class="num">Jan CTR</th>
+        <th class="num">Feb OR</th><th class="num">Feb CTR</th>
+        <th class="num">Mar OR</th><th class="num">Mar CTR</th>
+        <th class="num">Apr OR</th><th class="num">Apr CTR</th>
+        <th class="num">May OR</th><th class="num">May CTR</th>
+        <th class="num">OR Trend</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>🏥 Modern Healthcare</strong></td>
+          <td class="num"><span class="rate hi">6.66%</span></td><td class="num">0.445%</td>
+          <td class="num"><span class="rate hi">6.74%</span></td><td class="num">0.39%</td>
+          <td class="num"><span class="rate mid">5.12%</span></td><td class="num">0.241%</td>
+          <td class="num"><span class="rate mid">5.05%</span></td><td class="num">0.289%</td>
+          <td class="num"><span class="rate mid">4.51%</span></td><td class="num">0.203%</td>
+          <td class="num"><span class="dn">▼ -2.2pts</span></td>
+
+        </tr>
+        <tr>
+          <td><strong>📰 Ad Age</strong></td>
+          <td class="num"><span class="rate lo">3.75%</span></td><td class="num">0.166%</td>
+          <td class="num"><span class="rate mid">4.15%</span></td><td class="num">0.142%</td>
+          <td class="num"><span class="rate lo">3.78%</span></td><td class="num">0.165%</td>
+          <td class="num"><span class="rate lo">3.97%</span></td><td class="num">0.118%</td>
+          <td class="num"><span class="rate lo">3.97%</span></td><td class="num">0.126%</td>
+          <td class="num"><span class="flat">Stable</span></td>
+
+        </tr>
+        <tr>
+          <td><strong>💼 Pensions &amp; Investments</strong></td>
+          <td class="num"><span class="rate mid">4.81%</span></td><td class="num">0.157%</td>
+          <td class="num"><span class="rate mid">5.49%</span></td><td class="num">0.246%</td>
+          <td class="num"><span class="rate hi">6.78%</span></td><td class="num">0.277%</td>
+          <td class="num"><span class="rate hi">6.33%</span></td><td class="num">0.185%</td>
+          <td class="num"><span class="rate hi">6.07%</span></td><td class="num">0.158%</td>
+          <td class="num"><span class="up">▲ +1.3pts</span></td>
+
+        </tr>
+        <tr>
+          <td><strong>🔬 GenomeWeb</strong></td>
+          <td class="num"><span class="rate hi">6.04%</span></td><td class="num">0.38%</td>
+          <td class="num"><span class="rate hi">6.43%</span></td><td class="num">0.411%</td>
+          <td class="num"><span class="rate hi">6.28%</span></td><td class="num">0.485%</td>
+          <td class="num"><span class="rate mid">5.96%</span></td><td class="num">0.471%</td>
+          <td class="num"><span class="rate hi">6.28%</span></td><td class="num">0.457%</td>
+          <td class="num"><span class="flat">Stable</span></td>
+
+        </tr>
+        <tr>
+          <td><strong>🌆 Crain's Chicago</strong></td>
+          <td class="num"><span class="rate hi">6.48%</span></td><td class="num">0.185%</td>
+          <td class="num"><span class="rate mid">5.05%</span></td><td class="num">0.146%</td>
+          <td class="num"><span class="rate mid">4.76%</span></td><td class="num">0.214%</td>
+          <td class="num"><span class="rate mid">4.93%</span></td><td class="num">0.135%</td>
+          <td class="num"><span class="rate mid">5.9%</span></td><td class="num">0.389%</td>
+          <td class="num"><span class="dn">▼ -0.6pts</span></td>
+
+        </tr>
+        <tr>
+          <td><strong>🏙️ Crain's Detroit</strong></td>
+          <td class="num"><span class="na">—</span></td><td class="num"><span class="na">—</span></td>
+          <td class="num"><span class="rate hi">8.75%</span></td><td class="num">1.14%</td>
+          <td class="num"><span class="rate hi">8.2%</span></td><td class="num">0.891%</td>
+          <td class="num"><span class="rate hi">8.98%</span></td><td class="num">0.766%</td>
+          <td class="num"><span class="na">—</span></td><td class="num"><span class="na">—</span></td>
+          <td class="num"><span class="flat">Stable</span></td>
+
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:.5rem 1rem;font-size:.72rem;color:#94a3b8">Note: CCB Jan–Feb includes small opt-in lists. Trend reflects mix shift from BPTW opt-in (17K, 21–35% OR) toward whitepaper sends (38–83K, 5–7% OR). CDB data begins Feb 2026.</div>
+  </div>
+
+  <!-- Key Flags & Insights -->
+  <div class="sec-hdr"><div class="sec-title">Portfolio Flags &amp; Key Insights</div></div>
+  <div class="insights">
+    <div class="insight good">
+      <div class="insight-icon">🔬</div>
+      <hh4>CTOR Is the Better Cross-Brand Metric — Detroit 10.5%, GenomeWeb 7.1%</h4>
+      <p>Click-to-Open Rate (CTOR = clicks ÷ opens) removes list-size bias, making it the best apples-to-apples comparator across brands. Detroit leads at 10.49% CTOR, GenomeWeb at 7.08%, MH at 5.37%. AdAge (3.70%) and P&amp;I (3.58%) show lower content engagement ratios despite strong send volumes.</p>
+    </div>
+    <div class="insight good">
+      <div class="insight-icon">🌆</div>
+      <h4>Crain's Chicago BPTW Opt-In List Is the Portfolio's Top Engager</h4>
+      <p>Best Places to Work emails to 17K self-selected subscribers hit 21–35% open rates — the highest in the entire portfolio. The Apr 28 email ("What We See in Strong Workplaces") achieved 34.78% OR and 0.80% CTR. Opt-in audience segmentation is the single most powerful engagement lever across all brands.</p>
+    </div>
+    <div class="insight warn">
+      <div class="insight-icon">📉</div>
+      <h4>May CTR Declining Across 4 of 5 Brands — Watch for Recovery in June</h4>
+      <p>CTR dropped from March to May for MH (0.24%→0.20%), Ad Age (0.19%→0.12%), P&I (0.34%→0.21%), and GenomeWeb (0.48%→0.43%). This is consistent with webinar series maturing into replay/WOD sends and audiences seeing repeat content. GenomeWeb held best. New June webinar launches across all brands should reset this trend.</p>
+    </div>
+    <div class="insight info">
+      <div class="insight-icon">💼</div>
+      <h4>Pensions &amp; Investments Is the Most Volume-Consistent Brand</h4>
+      <p>P&I sends 750K–930K emails per month and never drops below 5% OR, generating the most clicks of any brand (8,097). Supplement and replay formats are standout — the OCIO Strategy Replay (Apr 28) hit 0.73% CTR on a 50K list. Infrastructure and alternatives topics drive the strongest engagement across all P&I content types.</p>
+    </div>
+    <div class="insight">
+      <div class="insight-icon">📊</div>
+      <h4>Ad Age Drives 50% of Portfolio Volume but at Lowest Open Rate</h4>
+      <p>Ad Age accounts for 4.19M of 11.2M total sends (37%) at a 3.9% blended OR — the lowest of all brands. This reflects the broadest, least segmented audience. Webinar promo emails (0.22% CTR) outperform whitepaper sends (0.14% CTR) by 1.6×. AI and influencer-themed content drives outsized whitepaper engagement.</p>
+    </div>
+    <div class="insight">
+      <div class="insight-icon">🏥</div>
+      <h4>Modern Healthcare Podcast Format Earns Best Engagement-Per-Email</h4>
+      <p>MH podcast emails (Temple Health, CVS Health, Volpara) average 6.5% OR and 0.40% CTR on lists of 10K–15K — the most efficient format in the MH portfolio and competitive with top GW webinar emails. Temple Health Podcast (Apr 27) hit 6.9% OR and 0.66% CTR — highest CTR of any MH email this period.</p>
+    </div>
+  </div>
+
+  <!-- Best Performers across all brands -->
+  <div class="sec-hdr"><div class="sec-title">Best Performing Emails — Across All Brands</div><div class="sec-sub">Top 10 by open rate &amp; top 10 by CTR · min. 5,000 recipients</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+    <div class="tbl-wrap" style="margin:0">
+      <table>
+        <thead><tr><th colspan="2">🏆 Top 10 Open Rate</th><th class="num">Sent</th><th class="num">OR</th><th class="num">CTR</th></tr></thead>
+        <tbody id="ovw-best-or"></tbody>
+      </table>
+    </div>
+    <div class="tbl-wrap" style="margin:0">
+      <table>
+        <thead><tr><th colspan="2">🖱️ Top 10 CTR</th><th class="num">Sent</th><th class="num">OR</th><th class="num">CTR</th></tr></thead>
+        <tbody id="ovw-best-ctr"></tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function getAllCampaigns(){
+  const all=[];
+  campaigns.forEach(c=>all.push({brand:'🏥 MH',client:c.name.replace('CustomMedia-','').replace(/-202\d[\d-]*$/,'').replace(/-/g,' '),date:c.date,subject:c.subject,sent:c.sent,or_pct:c.open_rate,ctr:c.ctr,unique_real_clicks:c.unique_real_clicks}));
+  adAgeCampaigns.forEach(c=>all.push({brand:'📰 Ad Age',...c}));
+  piCampaigns.forEach(c=>all.push({brand:'💼 P&I',...c}));
+  gwCampaigns.forEach(c=>all.push({brand:'🔬 GW',...c}));
+  ccbCampaigns.forEach(c=>all.push({brand:'🌆 CCB',...c}));
+  cdbCampaigns.forEach(c=>all.push({brand:'🏙️ Detroit',...c}));
+  return all;
+}
+
+function buildOverviewBest(){
+  const all=getAllCampaigns().filter(c=>c.sent>=5000);
+  const medals=['🥇','🥈','🥉','4','5','6','7','8','9','10'];
+  const topOR=[...all].sort((a,b)=>b.or_pct-a.or_pct).slice(0,10);
+  const topCTR=[...all].sort((a,b)=>b.ctr-a.ctr).slice(0,10);
+  document.getElementById('ovw-best-or').innerHTML=topOR.map((c,i)=>`<tr${i===0?' class="hl"':''}>
+    <td>${medals[i]}</td>
+    <td><div style="font-weight:700;font-size:.78rem">${c.brand} · ${c.client||''}</div><div class="subj" style="font-size:.7rem;color:#64748b">${(c.subject||'').slice(0,60)}${c.subject&&c.subject.length>60?'…':''}</div></td>
+    <td class="num">${fN(c.sent)}</td>
+    <td class="num"><span class="rate hi">${c.or_pct}%</span></td>
+    <td class="num">${c.ctr}%</td>
+  </tr>`).join('');
+  document.getElementById('ovw-best-ctr').innerHTML=topCTR.map((c,i)=>`<tr${i===0?' class="hl"':''}>
+    <td>${medals[i]}</td>
+    <td><div style="font-weight:700;font-size:.78rem">${c.brand} · ${c.client||''}</div><div class="subj" style="font-size:.7rem;color:#64748b">${(c.subject||'').slice(0,60)}${c.subject&&c.subject.length>60?'…':''}</div></td>
+    <td class="num">${fN(c.sent)}</td>
+    <td class="num">${c.or_pct}%</td>
+    <td class="num"><span class="rate hi">${c.ctr}%</span></td>
+  </tr>`).join('');
+}
+
+let ovwChartsInit=false;
+function initOverviewCharts(){
+  if(ovwChartsInit) return; ovwChartsInit=true;
+  const brandLabels=['MH','Ad Age','P&I','GenomeWeb',"Crain's Chi.","Crain's Det."];
+  const brandORs=[5.45,3.9,5.81,6.22,5.44,8.69];
+  const brandCTRs=[0.292,0.144,0.208,0.44,0.251,0.911];
+  const brandColors=['rgba(0,75,135,.85)','rgba(212,0,47,.80)','rgba(26,92,56,.85)','rgba(107,33,168,.85)','rgba(180,83,9,.85)','rgba(29,78,216,.85)'];
+  const baseOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#f1f5f9'},ticks:{color:'#64748b',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#64748b',font:{size:11}}}}};
+  new Chart(document.getElementById('ovw-or-chart'),{type:'bar',data:{labels:brandLabels,datasets:[{data:brandORs,backgroundColor:brandColors,borderRadius:6,borderSkipped:false}]},options:{...baseOpts,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>' '+v.raw+'% open rate'}}}}});
+  new Chart(document.getElementById('ovw-ctr-chart'),{type:'bar',data:{labels:brandLabels,datasets:[{data:brandCTRs,backgroundColor:brandColors,borderRadius:6,borderSkipped:false}]},options:{...baseOpts,plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>' '+v.raw+'% CTR'}}}}});
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INITIAL RENDER
+═══════════════════════════════════════════════════════════ */
+// Render Overview immediately (first/default tab)
+rendered['overview']=true;
+renderBrand('overview');
+
+</script>
+</body>
+</html>
